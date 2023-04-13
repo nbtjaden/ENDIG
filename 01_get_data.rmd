@@ -84,9 +84,11 @@ download_sso(dlfile = "Table-surveillance_systems_overview_for_2016_0.xlsx", yea
 download_sso(dlfile = "Table-surveillance_systems_overview_2.xlsx", year = 2015)
 ```
 
-## Contents
+## Disease names and IDs
 
-File names of ECDC disease surveillance systems overview tables are already very inconsistent, so it is wise to explore the data structure inside the tables before trying to work with them. Start by reading the excel sheet names for the different diseases:
+File names of ECDC disease surveillance systems overview tables are already very inconsistent, so it is wise to explore the data structure inside the tables before trying to work with them.
+
+Start by reading the excel sheet names for the different diseases:
 
 ```{r}
 years <- 2015:2021
@@ -103,35 +105,7 @@ IDs
 
 This is wildly inconsistent. We will need to manually define that "Dengue" = "DENV" etc. Structure of the sheets themselves also varies between years (and in some cases between diseases for a given year).
 
-The encoding of surveillance system characteristics seems consistent throughout the years at first, but exceptions exist. In most cases, however, it looks like this:
-
-The first relevant column classifies surveillance systems as
-
--   Cp = compulsory
--   V = voluntary
--   O = other
--   . = [not classified]
-
-The second relevant column classifies surveillance systems as:
-
--   Co = comprehensive
--   Se = sentinel
--   O = other
--   . = [not classified]
-
-This is followed by
-
--   A = active, meaning health agencies actively work to get reports from health care providers
--   P = passive, meaning health agencies only record what health care providers report
--   . = [not classified]
-
-and
-
--   C = case-based
--   A = aggregated
--   . = [not classified]
-
-## Metadata lookup file
+### Metadata lookup file
 
 `./data/diseases_IDs.csv` holds all information about which diseases appear in the different yearly tables and how they are called in that year. This table has been compiled manually. Some notes on that:
 
@@ -139,11 +113,11 @@ and
 
 The file also contains some additional information about the respective diseases. The column contents are the following:
 
--   `name`: The name of the disease or condition
+-   `name`: The name of the disease or condition to be displayed in ENDIG
 
--   `ID_master`: ID of the disease used for this project, usually an abbreviation of the diseases' name.
+-   `ID_master`: ID of the disease used by ENDIG, usually an abbreviation of the diseases' name.
 
--   `include`: disease to be in/excluded in the analyses are encoded as 1/0. This allows to remove certain entries like "Influenza, antiviral resistance (legacy)" that were discontinued or do not contain useful data. The list also contains a series of diseases that are not currently being listed by ECDC but might be added in the future (e.g. Usutu virus infection or Schistosomiasis). These are being excluded from appearing in the Shiny app as well.
+-   `include`: disease to be in/excluded in the analyses are encoded as 1/0. This allows to remove certain entries like "Influenza, antiviral resistance (legacy)" that were discontinued or do not contain useful data. The list also contains a series of diseases that are not currently being listed by ECDC but might be added in the future (e.g. Usutu virus infection or Schistosomiasis). These are being excluded from appearing in ENDIG as well.
 
 -   `EC_Annex`: disease listed in Annex 1 of [Commission Implementing Decision (EU) 2018/945 of 22 June 2018 on the communicable diseases and related special health issues to be covered by epidemiological surveillance as well as relevant case definitions (Text with EEA relevance.)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A32018D0945), encoded as 0/1.
 
@@ -200,6 +174,38 @@ Export for further usage.
 ```{r}
 save(meta, file=file.path(outdir, "meta.rds"))
 ```
+
+## Surveillance system characteristics
+
+The encoding of surveillance system characteristics seems consistent throughout the years at first, usually looking like this:
+
+The first relevant column classifies surveillance systems as
+
+-   Cp = compulsory
+-   V = voluntary
+-   O = other
+-   . = [not classified]
+
+The second relevant column classifies surveillance systems as:
+
+-   Co = comprehensive
+-   Se = sentinel
+-   O = other
+-   . = [not classified]
+
+This is followed by
+
+-   A = active, meaning health agencies actively work to get reports from health care providers
+-   P = passive, meaning health agencies only record what health care providers report
+-   . = [not classified]
+
+and
+
+-   C = case-based
+-   A = aggregated
+-   . = [not classified]
+
+However, there are exceptions in certain years for certain diseases that will have to be taken care of on a case-by-case basis.
 
 ## List of EU countries
 
