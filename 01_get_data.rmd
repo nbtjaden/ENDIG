@@ -20,13 +20,14 @@ Load necessary packages:
 
 -   `xlsx` for reading data from Office Open XML spreadsheet files
 -   `dplyr` for general-purpose data-wrangling
+-   `sf` for handling of spatial data
 -   `rnaturalearth` and `rnaturalearthdata` for downloading geodata from [naturalearthdata.com](https://www.naturalearthdata.com)
 -   `ggplot2` for plotting
 
 ```{r, message=FALSE}
 library(xlsx)
 library(dplyr)
-library(giscoR)
+library(sf)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(ggplot2)
