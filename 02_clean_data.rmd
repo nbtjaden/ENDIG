@@ -14,3 +14,200 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = '../') 
 ```
 
+# Packages
+
+Load necessary packages:
+
+-   `readxl` tidyverse package for reading data from Office Open XML spreadsheet files
+-   `dplyr` for general-purpose data-wrangling
+-   `tidyr` for general-purpose data-wrangling
+-   `stringr` for manipulating strings
+-   `sf` for handling of spatial polygon data
+
+```{r, message=FALSE}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(sf)
+```
+
+# Constants
+
+## Disease meta data
+
+Load the main meta data file:
+
+```{r}
+load(file = file.path("./data/processed/meta.rds"))
+head(meta)
+```
+
+Read list of table sheets that require special processing due to differing format etc.:
+
+```{r}
+special_processing_list <- read.csv("./data/special_processing_required.csv")
+special_processing_list <- paste(special_processing_list$year,
+                                  special_processing_list$dis)
+special_processing_list
+```
+
+## EU countries
+
+List of all EU (and non-EU) countries appearing in the data:
+
+```{r}
+load(file = file.path("./data/processed/countries.rds"))
+countries
+```
+
+Note that these are 31 instead of the expected 27 countries. The list additionally includes: Iceland, Liechtenstein, Norway, United Kingdom. As of 2015, the UK is still on the list for Creutzfeldt-Jacob Disease (VCJD), but does not report anything else to ECDC.
+
+## Country polygons
+
+Load previously downloaded country polygons from NaturalEarth:
+
+```{r}
+load(file = file.path("./data/processed/countries_sf.rds"))
+```
+
+# Output data
+
+Initialize the output data structure. We will create two separate list objects for plotting the maps and heatmaps, respectively. Each of them contain another set of lists for the different surveillance system characteristics.
+
+```{r}
+data_spatial <- list(compulsory=list(), comprehensive=list(), active=list(), aggregated=list())
+data_heatmap <- list(compulsory=list(), comprehensive=list(), active=list(), aggregated=list())
+```
+
+# Functions
+
+```{r}
+process_year <- function(year){
+  message("+++ processing year ", year, " +++")
+  disease_IDs <- meta %>% select(ID_master, paste0("ID_ECDC_", year))
+  
+  for (i in 1:nrow(disease_IDs)){
+    dis_global <- as.character(disease_IDs[i, "ID_master"])
+    dis_local <- as.character(disease_IDs[i, 2])
+    # if there is no table sheet for this disease in this year's workbook,
+    # just create an empty data.frame
+    if(is.na(dis_local)){
+      dat <- data.frame()
+    }
+    # otherwise prepare the data
+    else{
+      process_disease(year, dis_local)
+    }
+  }
+}
+
+
+process_disease <- function(year, dis){
+  # check if special processing is required
+  if(table_OK(year, dis)){
+    dat <- read_sheet(year, dis)
+  } else {
+    message(paste("skipping non-standard table for", dis, "in", year))
+  }
+ 
+  dat <- clean_duplicates(dat, year, dis)
+  
+   
+}
+
+
+clean_duplicates <- function(dat, year, dis){
+  dupe_countries <- unique(dat$Country[which(duplicated(dat$Country))])
+  if(length(dupe_countries)>0){
+    message(paste("duplicate country rows found in", dis, "sheet:"))
+    for(dupe_country in dupe_countries){
+      cat("\ninput data:\n")
+      dupe_rows <- which(dat$Country %in% dupe_country)
+      sub <- dat[dupe_rows, ]
+      print(sub)
+      
+      # Start with the assumption that rows for this country disagree in all 
+      # columns, setting all columns to "." for unspecified.
+      out <- c(dupe_country, rep(".", times=4))
+      
+      # if all rows of a column are identical, overwrite that spot in the
+      # output row with the corresponding value (catching it from the first row of sub)
+      if(length(unique(sub[,2]))==1){out[2] <- sub[1,2]}
+      if(length(unique(sub[,3]))==1){out[3] <- sub[1,3]}
+      if(length(unique(sub[,4]))==1){out[4] <- sub[1,4]}
+      if(length(unique(sub[,5]))==1){out[5] <- sub[1,5]}
+      
+      # overwrite the first row for this country with the new data
+      dat[dupe_rows[1],] <- out
+      # remove the remaining rows for this country
+      dat <- dat[-dupe_rows[2:length(dupe_rows)],]
+      
+      cat("\nturns to:\n")
+      print(dat[dupe_rows[1],])
+    }
+  }
+  return(dat)
+}
+
+
+
+
+
+
+
+
+# read a disease table sheet that follows the usual layout
+read_sheet <- function(year, dis){
+  # read the sheet, skipping the top 2 rows and manually assigning
+  # column names
+  dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                             paste0("data/raw/Table-surveillance_systems_overview_", year, ".xlsx")),
+                            skip = 2,
+                            col_types = "text",
+                            col_names = c("Country",
+                                          "src",
+                                          "compu",
+                                          "compre",
+                                          "act",
+                                          "agg",
+                                          "L",
+                                          "P",
+                                          "H",
+                                          "O",
+                                          "casedef"),
+                            sheet = dis)
+  if(nrow(dat) == 0){#if the sheet exists, but is empty, create a dummy
+    dat <- data.frame(Country="dummy",
+                      compu="dummy",
+                      compre="dummy",
+                      act="dummy",
+                      agg="dummy")
+  }
+  # select relevant columns
+  dat <- dat %>% select(Country, compu, compre, act, agg)
+  
+  # ECDC switched from using "Czech Republic" in earlier tables
+  # to using "Czechia" at some point.
+  # Harmonize that to "Czech Republic", if necessary
+  dat$Country[which(dat$Country %in% "Czechia")] <- "Czech Republic"
+  
+  # some sheets have non-data rows at the bottom. Keep only rows that 
+  # have a known country name in the first column. This also removes 
+  # the dummy row created for empty tables.
+  dat <- dat[which(dat$Country %in% countries),]
+  return(data.frame(dat))
+}
+
+
+
+# check if a certain combination of year and disease ID is on 
+# the list of table sheets needing non-standard processing
+table_OK <- function(year, dis){
+  !paste(year, dis) %in% special_processing_list
+}
+```
+
+```{r}
+
+```
