@@ -64,32 +64,24 @@ There is no central download page for ECDC's "surveillance systems overview" fil
 -   [Surveillance systems overview for 2020](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2020)
 -   [Surveillance systems overview for 2021](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2021)
 
-Links to these pages can also be found in the [introduction to ECDC's Annual Epidemiological Reports (AER)](https://www.ecdc.europa.eu/en/surveillance-and-disease-data/annual-epidemiological-reports/introduction-annual). While the page URLs listed above follow a regular pattern, the names of the files availe for download there are inconsistent and need to be pieced together manually. Download these tables for all available years (2015-2021), harmonizing file names as we go.
+Links to these pages can also be found in the [introduction to ECDC's Annual Epidemiological Reports (AER)](https://www.ecdc.europa.eu/en/surveillance-and-disease-data/annual-epidemiological-reports/introduction-annual). While the page URLs listed above follow a regular pattern, the names of the files available for download there are inconsistent and need to be pieced together manually. Download these tables for all available years (2015-2021), harmonizing file names as we go.
 
 ```{r eval=FALSE}
-baseurl <- "https://www.ecdc.europa.eu/sites/default/files/documents/"
-basename <- "Table-surveillance_systems_overview_"
-download.file(url      = paste0(baseurl, "surveillance-systems-overview-2021.xlsx"),
-              destfile = file.path(dldir, paste0( basename, "2021.xlsx")),
-              mode="wb")
-download.file(url      = paste0(baseurl, basename, "3.xlsx"),
-              destfile = file.path(dldir, paste0( basename, "2020.xlsx")),
-              mode="wb")
-download.file(url      = paste0(baseurl, "Table-surveillance_systems_overview_2019.xlsx"),
-              destfile = file.path(dldir, paste0(basename, "2019.xlsx")),
-              mode="wb")
-download.file(url      = paste0(baseurl, "surveillance-systems-overview-2018.xlsx"),
-              destfile = file.path(dldir, paste0(basename, "2018.xlsx")),
-              mode="wb")
-download.file(url      = paste0(baseurl, "surveillance-systems-overview-2017_4.xlsx"),
-              destfile = file.path(dldir, paste0(basename, "2017.xlsx")),
-              mode="wb")
-download.file(url      = paste0(baseurl, "Table-surveillance_systems_overview_for_2016_0.xlsx"),
-              destfile = file.path(dldir, paste0(basename, "2016.xlsx")),
-              mode="wb")
-download.file(url      = paste0(baseurl, "Table-surveillance_systems_overview_2.xlsx"),
-              destfile = file.path(dldir, paste0(basename, "2015.xlsx")),
-              mode="wb")
+download_sso <- function(dlfile, destdir = dldir, year){
+  baseurl <- "https://www.ecdc.europa.eu/sites/default/files/documents/"
+  basename <- "Table-surveillance_systems_overview_"
+  download.file(url = paste0(baseurl, dlfile),
+                destfile = file.path(destdir, paste0(basename, year, ".xlsx")),
+                mode="wb")
+}
+
+download_sso(dlfile = "surveillance-systems-overview-2021.xlsx", year = 2021)
+download_sso(dlfile = "Table-surveillance_systems_overview_3.xlsx", year = 2020)
+download_sso(dlfile = "Table-surveillance_systems_overview_2019.xlsx", year = 2019)
+download_sso(dlfile = "surveillance-systems-overview-2018.xlsx", year = 2018)
+download_sso(dlfile = "surveillance-systems-overview-2017_4.xlsx", year = 2017)
+download_sso(dlfile = "Table-surveillance_systems_overview_for_2016_0.xlsx", year = 2016)
+download_sso(dlfile = "Table-surveillance_systems_overview_2.xlsx", year = 2015)
 ```
 
 ## Contents
