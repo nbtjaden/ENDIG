@@ -1,0 +1,49 @@
+  ╔═════════════════════════════════╗
+  ║ Copyright information for ENDIG ║
+  ╚═════════════════════════════════╝
+
+1. Source Code
+
+All source code is © Nils Tjaden 2022-2023, permission to
+use, modify and distribute is granted under the terms of the GNU GENERAL PUBLIC
+LICENSE Version 3 (GPLv3). See file LICENSE for the full license.
+
+
+2. Data
+
+No third-party data is being distributed directly through the GitHub repository,
+but the processing scripts will draw data from external resources. These files
+are NOT subject to the GPLv3.
+
+2.1 Geospatial data
+Geospatial polygon data for country outlines is being drawn from the
+Natural Earth project. This data is in the public domain, see
+https://www.naturalearthdata.com/about/terms-of-use/ for details
+
+2.2 Disease surveillance systems data
+Data on surveillance systems is being drawn from the ECDC website. This data
+is © European Centre for Disease Prevention and Control (ECDC) 2015-2023.
+
+From https://www.ecdc.europa.eu/en/copyright, accessed 2023-04-13:
+
+  "ECDC Copyright and Limited Reproduction Notices
+
+  The contents of these Web Pages are © ECDC [2005-2022].
+
+  In particular, unless otherwise stated, ECDC, according to current EU and 
+  International legislation, is the owner of copyright and database rights in 
+  this website and its contents.
+
+  Information and documents made available on ECDC web pages and for which ECDC 
+  owns the copyright are public and may be reproduced, adapted and/or
+  distributed, totally or in part, irrespective of the means and/or the formats
+  used, provided that ECDC is always acknowledged as the original source of the
+  material. Such acknowledgement must be included in each copy of the material. 
+
+  Citations may be made from such material without prior permission, provided
+  the source is always acknowledged. The copyright policy of ECDC is compatible
+  with CC BY 4.0 license.
+
+  The above mentioned permissions DO NOT apply to content supplied by third 
+  parties. Therefore, for documents where the copyright lies with a third party, 
+  permission for reproduction must be obtained from the copyright holder."
