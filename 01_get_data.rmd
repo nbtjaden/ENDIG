@@ -268,7 +268,7 @@ save(disease_IDs_ECannex, file=file.path(outdir, "disease_IDs_ECannex.rds"))
 Public Domain country polygons are available from Natural Earth dataset (<https://www.naturalearthdata.com/>). The `rnaturalearthdata` package contains the necessary data, which can be accessed through the `rnaturalearth` package. Select countries of Europe, Asia, and Africa for for use as background when plotting.
 
 ```{r}
-countries_sf_bg <- ne_countries(continent= c("Europe", "Africa", "Asia"),
+europe <- ne_countries(continent= c("Europe", "Africa", "Asia"),
                                 type = "countries",
                                 scale="medium") %>%
   st_as_sf() %>% # convert from SpatialPolygons* to simple features
@@ -280,7 +280,7 @@ Quick plot:
 
 ```{r}
 ggplot() +
-geom_sf(data = countries_sf_bg, fill = "grey80", color = NA) +
+geom_sf(data = europe, fill = "grey80", color = NA) +
 xlim(c(2200000, 7150000)) +
 ylim(c(1380000, 5500000)) +
 theme(axis.text.x=element_blank(),
@@ -293,7 +293,7 @@ theme(axis.text.x=element_blank(),
 Export for further use:
 
 ```{r}
-save(countries_sf_bg, file=file.path(outdir, "countries_sf_bg.rds"))
+save(europe, file=file.path(outdir, "europe.rds"))
 ```
 
 ### Covered EU and neighboring countries

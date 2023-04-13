@@ -13,7 +13,7 @@ load(file.path("./data/processed/disease_IDs_ECannex.rds"))
 disease_IDs_additional <- subset(disease_IDs, !disease_IDs %in% disease_IDs_ECannex)
 
 # spatial data background map
-load(file.path("./data/processed/countries_sf_bg.rds"))
+load(file.path("./data/processed/europe.rds"))
 
 # spatial data disease surveillance systems
 disdata <- readRDS(file=file.path("./data/shiny/data_EUmap.rds"))
@@ -43,7 +43,7 @@ col.unknown <- "#bed492"
 ## prepare map background
 
 bgmap <- ggplot() +
-  geom_sf(data = countries_sf_bg, fill = col.nonEU, color = NA) +
+  geom_sf(data = europe, fill = col.nonEU, color = NA) +
   xlim(c(2200000, 6500000)) +
   ylim(c(1380000, 5500000)) +
   theme(axis.text.x=element_blank(),
@@ -136,7 +136,7 @@ server <- function(input, output, session){
       geom_sf(data=disdata[[input$systype]][[as.character(input$year)]], color=col.borders,
               aes_string(fill=input$disease)) +
       scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE) +
-      geom_sf(data = countries_sf_bg, fill = NA, color = col.bg.line)
+      geom_sf(data = europe, fill = NA, color = col.bg.line)
   )
   
   # Plot the heatmap
