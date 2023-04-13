@@ -273,7 +273,7 @@ europe <- ne_countries(continent= c("Europe", "Africa", "Asia"),
                                 scale="medium") %>%
   st_as_sf() %>% # convert from SpatialPolygons* to simple features
   st_transform(crs = "epsg:3035") %>%# change crs to ETRS89 / ETRS-LAEA
-  st_union()
+  st_union() # turn into a single large multipolygon
 ```
 
 Quick plot:
@@ -320,6 +320,18 @@ theme(axis.text.x=element_blank(),
       axis.text.y=element_blank(),
       axis.ticks.y=element_blank() 
 )
+```
+
+This has a lot of unnecessary data attached:
+
+```{r}
+str(countries_sf)
+```
+
+Reduce that to the essentials, keeping only the geometry column, and some basic identifiers:
+
+```{r}
+countries_sf <- countries_sf %>% select(geometry, name, name_long, formal_en, iso_a2)
 ```
 
 Export for further use:
