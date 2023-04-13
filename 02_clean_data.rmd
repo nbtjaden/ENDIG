@@ -1,0 +1,16 @@
+---
+title: "ENDIG: clean data"
+author: "Nils Tjaden"
+date: "`r Sys.Date()`"
+output: html_document
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../documentation") })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# move knitr working directory up by one level so it's the same as
+# the on of the R Project 
+knitr::opts_knit$set(root.dir = '../') 
+```
+
