@@ -1,0 +1,88 @@
+name,ID_master,include,EC_Annex,ID_ECDC_2021,ECDC_table_2021,ID_ECDC_2020,ECDC_table_2020,ID_ECDC_2019,ECDC_table_2019,ID_ECDC_2018,ECDC_table_2018,ID_ECDC_2017,ECDC_table_2017,ID_ECDC_2016,ECDC_table_2016,ID_ECDC_2015,ECDC_table_2015,class,cmt,ptype1,ptype2,p_family,vtype,vax,zoonotic
+Antimicrobial resistance (EARS-Net),AMR,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,,NA,NA,NA,NA,NA,NA
+Antimicrobial consumption,AMS,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,,NA,NA,NA,NA,NA,NA
+Anthrax,ANTH,1,1,ANTH,1,ANTH,1,ANTH,1,ANTH,1,ANTH,1,Anthrax,1,Anthrax,1,bacterial infection,,cellular,bacteria,Bacillaceae,biting flies,commercial,1
+Arenaviruses,ARENA,1,0,ARENA,1,ARENA,1,ARENA,1,ARENA,1,ARENA,1,NA,0,NA,0,zoonotic - wildlife,,non-cellular,virus,Arenaviridae,rodent,commercial,1
+Babesiosis,BABE,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - arthropods,,cellular,parasite - protozoa,Piroplasmida,tick,limited commercial,1
+Botulism,BOTU,1,1,BOTU,1,BOTU,1,BOTU,1,BOTU,1,BOTU,1,Botulism,1,Botulism,1,bacterial infection,,cellular,bacteria,Clostridiaceae,NA,limited commercial,1
+Brucellosis,BRUC,1,1,BRUC,1,BRUC,1,BRUC,1,BRUC,1,BRUC,1,Brucellosis,1,Brucellosis,1,bacterial infection,,cellular,bacteria,Brucellaceae,NA,animals,1
+Campylobacter enteritis,CAMP,1,1,CAMP,1,CAMP,1,CAMP,1,CAMP,1,CAMP,1,Campylobacteriosis,1,Campylobacteriosis,1,bacterial infection,,cellular,bacteria,Campylobacteraceae,NA,none,1
+Communicable disease threats to public health in the EU,CCDT_EU,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,,NA,NA,NA,NA,NA,NA
+Crimean-Congo haemorrhagic fever,CCHF,1,0,CCHF,1,CCHF,1,CCHF,1,CCHF,1,CCHF,1,Crimean-Congo haemorrhag. fever,1,Crimean-Congo haemorrhag. fever,1,zoonotic - arthropods,,non-cellular,virus,Nairoviridae,tick,clinical,1
+Clostridium difficile infections,CDIFF,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,"HAI, C. difficile",1,NA,0,bacterial infection,,cellular,bacteria,Peptostreptococcaceae,NA,clinical,0
+Chagas disease,CHAGAS,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - arthropods,,cellular,parasite - protozoa,Trypanosomatidae,kissing bugs,none,1
+Chikungunya virus disease,CHIK,1,1,CHIK,1,CHIK,1,CHIK,1,CHIK,1,CHIK,1,Chikungunya,1,Chikungunya,1,zoonotic - arthropods,,non-cellular,virus,Togaviridae,mosquito,clinical,1
+Chlamydia infection,CHLAM,1,1,NA,0,NA,0,CHLAM,1,NA,0,CHLAM,1,Chlamydia,1,Chlamydia,1,std,,cellular,bacteria,Chlamydiaceae,NA,clinical,0
+Cholera,CHOL,1,1,CHOL,1,CHOL,1,CHOL,1,CHOL,1,CHOL,1,Cholera,1,Cholera,1,bacterial infection,,cellular,bacteria,Vibrionaceae,NA,commercial,0
+Chickenpox,CHPOX,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,childhood infection,,non-cellular,virus,Herpesviridae,NA,commercial,0
+COVID-19,COVID_19,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,viral infection,,non-cellular,virus,Coronaviridae,NA,commercial,1
+Cryptosporidiosis,CRYP,1,1,CRYP,1,CRYP,1,CRYP,1,CRYP,1,CRYP,1,Cryptosporidiosis ,1,Cryptosporidiosis ,1,other parasites,,cellular,parasite - protozoa,Cryptosporidiidae,NA,none,1
+Dengue,DENGUE,1,1,DENGUE,1,DENGUE,1,DENGUE,1,DENGUE,1,DENGUE,1,Dengue,1,Dengue,1,zoonotic - arthropods,"one commercial vaccine actually exosts, but is not commonly used for various reasons",non-cellular,virus,Flaviviridae,mosquito,limited commercial,1
+Diphtheria,DIPH,1,1,NA,0,DIPH,1,NA,0,NA,0,DIPH,1,Diphtheria,1,Diphtheria,1,bacterial infection,,cellular,bacteria,Corynebacteriaceae,NA,commercial,0
+Echinococcosis,ECHI,1,1,ECHI,1,ECHI,1,ECHI,1,ECHI,1,ECHI,1,Echinococcosis,1,Echinococcosis,1,macroparasite,,cellular,parasite - animalia,Taeniidae,NA,animals,1
+Ebola and Marburg virus diseases (filovirus),FILO,1,0,FILO,1,FILO,1,FILO,1,FILO,1,FILO,1,Ebola and Marburg,1,Ebola and Marburg,1,viral infection,"on commercial vaccine for Ebola exists and is being used, but none for Marburg",non-cellular,virus,Filoviridae,NA,commercial,1
+Giardiasis (lambliasis),GIAR,1,1,GIAR,1,GIAR,1,GIAR,1,GIAR,1,GIAR,1,Giardiasis,1,Giardiasis,1,zoonotic - wildlife,beaver fever,cellular,parasite - protozoa,Hexamitidae,NA,animals,1
+Gonococcal infection,GONO,1,1,NA,0,NA,0,GONO,1,NA,0,GONO,1,Gonorrhoea,1,Gonorrhoea,1,std,,cellular,bacteria,Neisseriaceae,NA,clinical,0
+"Haemophilus influenzae infection, invasive disease",HAEINF,1,1,NA,0,HAEINF,1,NA,0,NA,0,HAEINF,1,Haemophilus influenzae,1,Haemophilus influenzae,1,bacterial infection,,cellular,bacteria,Pasteurellaceae,NA,commercial,0
+Healthcare-associated infections in intensive care units,HAI_ICU,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,"HAI, ICUs",1,HCAI in ICUs,1,NA,,NA,NA,NA,NA,NA,0
+Healthcare-associated infections: surgical site infections,HAI_SSI,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,"HAI, surgical site infections",1,NA,0,NA,NA,NA,NA,NA,NA,NA,0
+Hantavirus infection,HANTA,1,0,HANTA,1,HANTA,1,HANTA,1,HANTA,1,HANTA,1,Hantavirus,1,Hantavirus,1,zoonotic - wildlife,commervial vaccine available for HTNV but not for other hantaviruses,non-cellular,virus,Hantaviridae,rodent,limited commercial,1
+Hepatitis A (acute),HEPA,1,1,HEPA,1,HEPA,1,HEPA,1,HEPA,1,HEPA,1,Hep A,1,Hep A,1,viral infection,,non-cellular,virus,Picornaviridae,NA,commercial,0
+Hepatitis B,HEPB,1,1,HEPB,1,HEPB,1,NA,0,NA,0,HEPB,1,Hep B,1,Hep B,1,viral infection,,non-cellular,virus,Hepadnaviridae,NA,commercial,0
+Hepatitis C,HEPC,1,1,HEPC,1,HEPC,1,NA,0,NA,0,HEPC,1,Hep C,1,Hep C,1,std,,non-cellular,virus,Flaviviridae,NA,clinical,0
+Herpes simplex,HERPS,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,viral infection,,non-cellular,virus,Herpesviridae,NA,clinical,1
+genital Herpes simplex,HERPS_GEN,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,std,,non-cellular,virus,Herpesviridae,NA,clinical,1
+Hand foot and mouth disease,HFM,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - veterinary,in animals: Foot-and-mouth disease,non-cellular,virus,Picornaviridae,NA,limited commercial,1
+HIV infection and AIDS,HIV,1,1,NA,0,NA,0,NA,0,NA,0,HIV,1,HIV and AIDS,1,HIV and AIDS,1,std,,non-cellular,virus,Retroviridae,NA,clinical,0
+"Influenza, clinical data (legacy)",INF_1,1,0,NA,0,NA,0,NA,0,NA,0,NA,0,"Influenza, human I",1,"Influenza, human I",1,viral infection,,non-cellular,virus,Orthomyxoviridae,NA,commercial,0
+"Influenza, virological data (legacy)",INF_2,1,0,NA,0,NA,0,NA,0,NA,0,NA,0,"Influenza, human II",1,"Influenza, human II",1,viral infection,,non-cellular,virus,Orthomyxoviridae,NA,commercial,0
+"Influenza, laboratory-confirmed hospitalised cases (legacy)",INF_3,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,"Influenza, human III",1,"Influenza, human III",1,viral infection,,non-cellular,virus,Orthomyxoviridae,NA,commercial,0
+"Influenza, antiviral resistance (legacy)",INF_4,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,"Influenza, human IV",1,"Influenza, human IV",1,viral infection,,non-cellular,virus,Orthomyxoviridae,NA,commercial,0
+"Influenza, seasonal",INF_SEASON,0,1,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,viral infection,,non-cellular,virus,Orthomyxoviridae,NA,commercial,0
+"Influenza, zoonotic",INF_ZOONOT,0,1,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - wildlife,,non-cellular,virus,Orthomyxoviridae,misc,clinical,1
+Legionnaires' disease,LEGI,1,1,NA,0,LEGI,1,LEGI,1,LEGI,1,LEGI,1,Legionellosis,1,NA,0,bacterial infection,,cellular,bacteria,Legionellaceae,NA,none,0
+Leishmaniasis,LEISH,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - arthropods,,cellular,parasite - protozoa,Leishmania,sandflies,clinical,1
+Leptospirosis,LEPT,1,1,LEPT,1,LEPT,1,LEPT,1,LEPT,1,NA,0,Leptospirosis,1,Leptospirosis,1,bacterial infection,,cellular,bacteria,Leptospiraceae,misc,none,1
+Lymphogranuloma venereum,LGV,1,0,NA,0,NA,1,LGV,1,NA,0,LGV,1,Lymphogranuloma venereum,1,Lymphogranuloma venereum,1,std,,cellular,bacteria,Chlamydiaceae,NA,none,0
+Lassa fever,LHV,1,0,NA,0,NA,0,NA,0,NA,0,NA,0,Lassa fever,1,Lassa fever,1,zoonotic - wildlife,see arenaviruses?,non-cellular,virus,Arenaviridae,NA,none,1
+Listeriosis,LIST,1,1,LIST,1,LIST,1,LIST,1,LIST,1,LIST,1,Listeriosis,1,Listeriosis,1,bacterial infection,,cellular,bacteria,Listeriaceae,NA,none,1
+Lyme neuroborreliosis,LYMENEURO,1,1,LYMENEURO,1,LYMENEURO,1,LYMENEURO,1,LYMENEURO,1,NA,0,NA,0,NA,0,zoonotic - arthropods,aka Borreliosis,cellular,bacteria,Borreliaceae,tick,clinical,1
+Malaria,MALA,1,1,MALA,1,MALA,1,MALA,1,MALA,1,MALA,1,Malaria,1,Malaria,1,zoonotic - arthropods,"vaccine quite new, endorsed by WHO since 2021",cellular,parasite - protozoa,Plasmodiidae,mosquito,limited commercial,1
+Measles,MEAS,1,1,NA,0,NA,0,NA,0,NA,0,MEAS,1,NA,0,NA,0,childhood infection,,non-cellular,virus,Paramyxoviridae,NA,commercial,0
+"Meningococcal infection, invasive disease",MENI,1,1,NA,0,MENI,1,NA,0,NA,0,MENI,1,Invasive meningococcal disease,1,Invasive meningococcal disease,1,bacterial infection,,cellular,bacteria,Neisseriaceae,NA,commercial,0
+MERS,MERS,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,viral infection,,non-cellular,virus,Coronaviridae,NA,clinical,1
+Monkeypox,MPOX,1,0,MPX,1,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,viral infection,smallpox vaccines provide some protection,non-cellular,virus,Poxviridae,NA,limited commercial,1
+Mediterranean spotted fever,MSF,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - arthropods,,cellular,bacteria,Rickettsiae,tick,none,1
+Mumps,MUMP,1,1,NA,0,MUMP,1,NA,0,NA,0,MUMP,1,Mumps,1,Mumps,1,childhood infection,,non-cellular,virus,Paramyxoviridae,NA,commercial,0
+Pertussis,PERT,1,1,NA,0,PERT,1,NA,0,NA,0,PERT,1,Pertussis,1,Pertussis,1,bacterial infection,,cellular,bacteria,Alcaligenaceae,NA,commercial,1
+Plague,PLAG,1,1,PLAG,1,PLAG,1,PLAG,1,PLAG,1,PLAG,1,Plague,1,Plague,1,zoonotic - wildlife,"multiple vaccines exist and have been used in practice, but not formally approved",cellular,bacteria,Yersiniaceae,fleas,clinical,1
+"Streptocuccus pneumoniae disease, invasive",PNEU,1,1,NA,0,PNEU,1,NA,0,NA,0,PNEU,1,"Pneumoccoccal disease, invasive",1,"Pneumoccoccal disease, invasive",1,bacterial infection,treptococcus pneumoniae infections,cellular,bacteria,Streptococcaceae,NA,commercial,0
+"Poliomyelitis, acute",POLI,1,1,NA,0,POLI,1,NA,0,NA,0,POLI,1,Poliomyelitis,1,Poliomyelitis,1,viral infection,,non-cellular,virus,Picornaviridae,NA,commercial,0
+Q fever,QFEV,1,1,QFEV,1,QFEV,1,QFEV,1,QFEV,1,QFEV,1,Q fever,1,Q fever,1,zoonotic - veterinary,,cellular,bacteria,Coxiellaceae,NA,commercial,1
+Rabies,RABI,1,1,RABI,1,RABI,1,RABI,1,RABI,1,RABI,1,Rabies,1,Rabies,1,zoonotic - wildlife,,non-cellular,virus,Rhabdoviridae,NA,commercial,1
+Rift Valley fever,RIFT,1,0,RIFT,1,RIFT,1,RIFT,1,RIFT,1,RIFT,1,Rift Valley fever,1,Rift Valley fever,1,zoonotic - arthropods,"at least one vaccine was approved in the US, but not widely available. Animal vaccines available",non-cellular,virus,Phenuiviridae,mosquito,limited commercial,1
+Rocky Mountain spotted fever,RMSF,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - arthropods,,cellular,bacteria,Rickettsiae,tick,none,1
+Rubella,RUBE,1,1,NA,0,NA,0,NA,0,NA,0,RUBE,1,NA,0,NA,0,viral infection,,non-cellular,virus,Matonaviridae,NA,commercial,0
+Salmonella enteritis,SALM,1,1,SALM,1,SALM,1,SALM,1,SALM,1,SALM,1,Salmonellosis,1,Salmonellosis,1,bacterial infection,,cellular,bacteria,Enterobacteriaceae,NA,animals,1
+Severe acute respiratory syndrome (SARS),SARS,1,1,NA,0,SARS,1,SARS,1,SARS,1,SARS,1,SARS,1,SARS,1,viral infection,,non-cellular,virus,Coronaviridae,NA,clinical,1
+Schistosomiasis,SCHISTO,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,macroparasite,,cellular,parasite - animalia,Schistosomatidae,snails,none,1
+Shigellosis,SHIG,1,1,SHIG,1,SHIG,1,SHIG,1,SHIG,1,SHIG,1,Shigellosis,1,Shigellosis,1,bacterial infection,,cellular,bacteria,Enterobacteriaceae,NA,none,0
+Smallpox,SPOX,1,1,SPOX,1,SPOX,1,SPOX,1,SPOX,1,SPOX,1,Smallpox,1,Smallpox,1,viral infection,,non-cellular,virus,Poxviridae,NA,commercial,0
+Syphillis,SYPH,1,1,NA,0,NA,0,SYPH,1,NA,0,SYPH,1,Syphillis,1,Syphillis,1,std,,cellular,bacteria,Treponemataceae,NA,clinical,0
+"Syphillis, congenital",SYPH_C,1,1,NA,0,NA,0,CONSYPH,1,NA,0,CONSYPH,1,"Syphillis, congenital",1,"Syphillis, congenital",1,bacterial infection,,cellular,bacteria,Treponemataceae,NA,commercial,0
+Tick-borne viral encephalitis,TBE,1,1,TBE,1,TBE,1,TBE,1,TBE,1,TBE,1,Tick-borne encephalitis,1,Tick-borne encephalitis,1,zoonotic - arthropods,,non-cellular,virus,Flaviviridae,tick,commercial,1
+Tetanus,TETA,1,1,NA,0,TETA,1,NA,0,NA,0,TETA,1,Tetanus,1,Tetanus,1,bacterial infection,,cellular,bacteria,Clostridiaceae,NA,commercial,1
+"Toxoplasmosis, congenital",TOXO,1,1,TOXO,1,TOXO,1,TOXO,1,TOXO,1,TOXO,1,Toxoplasmosis,1,Toxoplasmosis,1,other parasites,,cellular,parasite - protozoa,Sarcocystidae,NA,none,1
+Trichinellosis,TRIC,1,1,TRIC,1,TRIC,1,TRIC,1,TRIC,1,TRIC,1,Trichinellosis,1,Trichinellosis,1,macroparasite,,cellular,parasite - animalia,Trichinellidae,NA,none,1
+Tuberculosis,TUBE,1,1,TUBE,1,TUBE,1,TUBE,1,NA,0,TUBE,1,Tuberculosis,1,Tuberculosis,1,bacterial infection,,cellular,bacteria,Mycobacteriaceae,NA,commercial,1
+Tularaemia,TULA,1,1,TULA,1,TULA,1,TULA,1,TULA,1,TULA,1,Tularaemia,1,Tularaemia,1,zoonotic - arthropods,"rabbit fever, apparently there was a vacine available but is currently under review for undeclared reasons (US CDC)",cellular,bacteria,Francisellaceae,misc arthropods,limited commercial,1
+Typhoid and paratyphoid fevers,TYPH,1,1,TYPH,1,TYPH,1,TYPH,1,TYPH,1,TYPH,1,Typhoid-paratyphoid,1,Typhoid-paratyphoid,1,bacterial infection,different from tyhpus: Salmonella,cellular,bacteria,Enterobacteriaceae,NA,commercial,0
+Typhus,TYPHUS,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - arthropods,different from typhoid fever: Rickettsia,cellular,bacteria,Rickettsiae,misc arthropods,clinical,1
+Usutu virus disease,USUV,0,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,NA,0,zoonotic - arthropods,,non-cellular,virus,Flaviviridae,mosquito,none,1
+Creutzfeldt-Jakob disease,VCJD,1,1,VCJD,1,VCJD,1,VCJD,1,VCJD,1,VCJD,1,vCJD,1,vCJD,1,zoonotic - veterinary,,non-cellular,prion,NA,NA,none,1
+Viral haemorrhagic fevers,VHFOTH,1,1,VHFOTH,1,VHFOTH,1,VHFOTH,1,VHFOTH,1,VHFOTH,1,NA,0,NA,0,viral infection,,non-cellular,virus,NA,NA,NA,NA
+Shiga toxin/verocytotoxin-producing E. coli infection (STEC/VTEC),VTEC,1,1,VTEC,1,VTEC,1,VTEC,1,VTEC,1,VTEC,1,STEC VTEC infection,1,STEC VTEC infection,1,bacterial infection,aka EHEC,cellular,bacteria,Enterobacteriaceae,NA,none,1
+West Nile virus infection,WNF,1,1,WNF,1,WNF,1,WNF,1,WNF,1,WNF,1,West Nile fever,1,West Nile fever,1,zoonotic - arthropods,,non-cellular,virus,Flaviviridae,mosquito,clinical,1
+Yellow fever,YELF,1,1,YELF,1,YELF,1,YELF,1,YELF,1,YELF,1,Yellow fever,1,Yellow fever,1,zoonotic - arthropods,,non-cellular,virus,Flaviviridae,mosquito,commercial,1
+Enteritis due to Yersinia enterocolitica or Yersinia pseudotuberculosis ,YERS,1,1,YERS,1,YERS,1,YERS,1,YERS,1,YERS,1,Yersiniosis,1,Yersiniosis,1,bacterial infection,,cellular,bacteria,Yersiniaceae,NA,none,0
+Zika virus disease,ZIKV,1,1,ZIKV,1,ZIKV,1,ZIKV,1,ZIKV,1,ZIKV,1,Zika,1,NA,0,zoonotic - arthropods,,non-cellular,virus,Flaviviridae,mosquito,clinical,1

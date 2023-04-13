@@ -1,0 +1,334 @@
+---
+title: "ENDIG: Data download"
+author: "Author 1"
+date: "`r Sys.Date()`"
+output: html_document
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../documentation") })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# move knitr working directory up by one level so it's the same as
+# the one of the R Project 
+knitr::opts_knit$set(root.dir = '../') 
+```
+
+# Setup
+
+Load necessary packages:
+
+-   `xlsx` for reading data from Office Open XML spreadsheet files
+-   `dplyr` for general-purpose data-wrangling
+-   `giscoR` for downloading geodata from GISCO
+-   `ggplot2` for plotting
+
+```{r, message=FALSE}
+library(xlsx)
+library(dplyr)
+library(giscoR)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggplot2)
+```
+
+Create a directory for downloaded data:
+
+```{r}
+dldir <- file.path(getwd(), "data/raw")
+if(!file.exists(dldir)){
+  dir.create(dldir, recursive = TRUE)
+}
+```
+
+Create another directory for processed data:
+
+```{r}
+outdir <- file.path(getwd(), "data/processed")
+if(!file.exists(outdir)){
+  dir.create(outdir, recursive = TRUE)
+}
+```
+
+# Annual Epidemiological Report (AER) overview tables
+
+## Download
+
+There is no central download page for ECDC's "surveillance systems overview" files. The latest version of each file can always be found on its own webpage:
+
+-   [Surveillance systems overview for 2015](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2015)
+-   [Surveillance systems overview for 2016](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2016)
+-   [Surveillance systems overview for 2017](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2017)
+-   [Surveillance systems overview for 2018](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2018)
+-   [Surveillance systems overview for 2019](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2019)
+-   [Surveillance systems overview for 2020](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2020)
+-   [Surveillance systems overview for 2021](https://www.ecdc.europa.eu/en/publications-data/surveillance-systems-overview-2021)
+
+Links to these pages can also be found in the [introduction to ECDC's Annual Epidemiological Reports (AER)](https://www.ecdc.europa.eu/en/surveillance-and-disease-data/annual-epidemiological-reports/introduction-annual). While the page URLs listed above follow a regular pattern, the names of the files availe for download there are inconsistent and need to be pieced together manually. Download these tables for all available years (2015-2021), harmonizing file names as we go.
+
+```{r eval=FALSE}
+baseurl <- "https://www.ecdc.europa.eu/sites/default/files/documents/"
+basename <- "Table-surveillance_systems_overview_"
+download.file(url      = paste0(baseurl, "surveillance-systems-overview-2021.xlsx"),
+              destfile = file.path(dldir, paste0( basename, "2021.xlsx")),
+              mode="wb")
+download.file(url      = paste0(baseurl, basename, "3.xlsx"),
+              destfile = file.path(dldir, paste0( basename, "2020.xlsx")),
+              mode="wb")
+download.file(url      = paste0(baseurl, "Table-surveillance_systems_overview_2019.xlsx"),
+              destfile = file.path(dldir, paste0(basename, "2019.xlsx")),
+              mode="wb")
+download.file(url      = paste0(baseurl, "surveillance-systems-overview-2018.xlsx"),
+              destfile = file.path(dldir, paste0(basename, "2018.xlsx")),
+              mode="wb")
+download.file(url      = paste0(baseurl, "surveillance-systems-overview-2017_4.xlsx"),
+              destfile = file.path(dldir, paste0(basename, "2017.xlsx")),
+              mode="wb")
+download.file(url      = paste0(baseurl, "Table-surveillance_systems_overview_for_2016_0.xlsx"),
+              destfile = file.path(dldir, paste0(basename, "2016.xlsx")),
+              mode="wb")
+download.file(url      = paste0(baseurl, "Table-surveillance_systems_overview_2.xlsx"),
+              destfile = file.path(dldir, paste0(basename, "2015.xlsx")),
+              mode="wb")
+```
+
+## Contents
+
+File names of ECDC disease surveillance systems overview tables are already very inconsistent, so it is wise to explore the data structure inside the tables before trying to work with them. Start by reading the excel sheet names for the different diseases:
+
+```{r}
+years <- 2015:2021
+IDs <- list()
+
+for(i in 1:length(years)){
+  wb <- xlsx::loadWorkbook(file.path(getwd(), paste0("data/raw/Table-surveillance_systems_overview_", years[i], ".xlsx")))
+  IDs[[i]] <- names(xlsx::getSheets(wb))
+}
+names(IDs) <- paste0("Y", years)
+
+IDs
+```
+
+This is wildly inconsistent. We will need to manually define that "Dengue" = "DENV" etc. Structure of the sheets themselves also varies between years (and in some cases between diseases for a given year).
+
+The encoding of surveillance system characteristics seems consistent throughout the years at first, but exceptions exist. In most cases, however, it looks like this:
+
+The first relevant column classifies surveillance systems as
+
+-   Cp = compulsory
+-   V = voluntary
+-   O = other
+-   . = [not classified]
+
+The second relevant column classifies surveillance systems as:
+
+-   Co = comprehensive
+-   Se = sentinel
+-   O = other
+-   . = [not classified]
+
+This is followed by
+
+-   A = active, meaning health agencies actively work to get reports from health care providers
+-   P = passive, meaning health agencies only record what health care providers report
+-   . = [not classified]
+
+and
+
+-   C = case-based
+-   A = aggregated
+-   . = [not classified]
+
+## Metadata lookup file
+
+`./data/diseases_IDs.csv` holds all information about which diseases appear in the different yearly tables and how they are called in that year. This table has been compiled manually. Some notes on that:
+
+-   2017 has separate sheets for AIDS and HIV. The HIV table has more countries. The only country from the AIDS table not appearing in the HIV table is France. For countries that appear in both sheets, entries vary a bit in the "Data reported by" columns, but are identical in the columns used for this study. We will simply drop the AIDS sheet, consider bringing the data for France over manually?
+
+The file also contains some additional information about the respective diseases. The column contents are the following:
+
+-   `name`: The name of the disease or condition
+
+-   `ID_master`: ID of the disease used for this project, usually an abbreviation of the diseases' name.
+
+-   `include`: disease to be in/excluded in the analyses are encoded as 1/0. This allows to remove certain entries like "Influenza, antiviral resistance (legacy)" that were discontinued or do not contain useful data. The list also contains a series of diseases that are not currently being listed by ECDC but might be added in the future (e.g. Usutu virus infection or Schistosomiasis). These are being excluded from appearing in the Shiny app as well.
+
+-   `EC_Annex`: disease listed in Annex 1 of [Commission Implementing Decision (EU) 2018/945 of 22 June 2018 on the communicable diseases and related special health issues to be covered by epidemiological surveillance as well as relevant case definitions (Text with EEA relevance.)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A32018D0945), encoded as 0/1.
+
+-   `ID_ECDC_20xx`: Disease ID (i.e. table sheet name) used in the ECDC table for the given year.
+
+-   `ECDC_table_20xx`: Does the table for the given year contain a sheet for this disease, encoded as 0/1
+
+-   `class`: broad class of disease like "viral infection"
+
+-   `cmt`: comments
+
+-   `ptype1`: broad pathogen type, cellular vs. non-cellular
+
+-   `ptype2`: narrower pathogen type, bacteria vs. virus etc.
+
+-   `p_family`: taxonomic family of the pathogen, e.g. *Bacillaceae*
+
+-   `vtype`: vector type such as "mosquito" (vector-borne diseases only)
+
+-   `vax`: availability of vaccinations
+
+-   `zoonotic`: is the disease a zoonotic one, encoded as 0/1
+
+Read that file and turn it into an R object for further use.
+
+```{r}
+meta <- read.csv(file.path("./data/diseases_IDs.csv"))
+head(meta)
+```
+
+There are several columns that encode boolean data as 0/1. In fact, all numeric data in this table is supposed to be boolean. Let's convert that accordingly.
+
+```{r}
+meta <- meta %>% mutate_if(is.numeric, as.logical)
+head(meta)
+```
+
+Several rows were marked manually for exclusion. Most of these are diseases that are not part of any monitoring programme, others are simply irrelevant:
+
+```{r}
+meta %>% filter(include == FALSE) %>% select(name) %>% print()
+```
+
+Remove those rows marked for exclusion:
+
+```{r}
+nrow(meta)
+meta <- meta %>% filter(include == TRUE)
+nrow(meta)
+```
+
+Export for further usage.
+
+```{r}
+save(meta, file=file.path(outdir, "meta.rds"))
+```
+
+## List of EU countries
+
+Get a complete list of all countries occurring in the 2020 ECDC surveillance systems Excel file. There is one sheet per disease and each sheet only contains the countries that actually have surveillance for this disease. Go through all the sheets/diseases and extract all countries listed.
+
+```{r}
+disease_IDs <- na.omit(meta$ID_ECDC_2020)
+countries <- c()
+for (dis in disease_IDs){
+  cty <- readxl::read_xlsx(path = file.path(getwd(), "data/raw/Table-surveillance_systems_overview_2020.xlsx"), sheet = dis, range = cellranger::cell_cols("B"))
+  countries <- unique(c(countries, na.omit(cty$Country)))
+}
+```
+
+Sort alphabetically:
+
+```{r}
+countries <- sort(countries)
+countries
+```
+
+Note that these are 31 instead of the expected 27 countries. The list additionally includes: Iceland, Liechtenstein, Norway, United Kingdom. As of 2020, the UK is still on the list for Creutzfeldt-Jacob Disease (VCJD), but does not report anything else to ECDC.
+
+The tables sometimes use "Czechia" and sometimes "Czech Republic" - we will stick to the latter:
+
+```{r}
+countries <- sub(pattern="Czechia", replacement="Czech Republic", x=countries)
+```
+
+Export for further use:
+
+```{r}
+save(countries, file=file.path(outdir, "countries.rds"))
+```
+
+## List of diseases
+
+List of diseases, using our own IDs plus their names:
+
+```{r}
+disease_IDs <- meta$ID_master
+names(disease_IDs) <- meta$name
+save(disease_IDs, file=file.path(outdir, "disease_IDs.rds"))
+```
+
+Export subset of disease IDs, keeping only those that are listed in the EC list of communicable diseases:
+
+```{r}
+meta_sub <- meta %>% filter(EC_Annex)
+disease_IDs_ECannex <- meta_sub$ID_master
+names(disease_IDs_ECannex) <- meta_sub$name
+save(disease_IDs_ECannex, file=file.path(outdir, "disease_IDs_ECannex.rds"))
+```
+
+# Spatial data
+
+### Background map
+
+Public Domain country polygons are available from Natural Earth dataset (<https://www.naturalearthdata.com/>). The `rnaturalearthdata` package contains the necessary data, which can be accessed through the `rnaturalearth` package. Select countries of Europe, Asia, and Africa for for use as background when plotting.
+
+```{r}
+countries_sf_bg <- ne_countries(continent= c("Europe", "Africa", "Asia"),
+                                type = "countries",
+                                scale="medium") %>%
+  st_as_sf() %>% # convert from SpatialPolygons* to simple features
+  st_transform(crs = "epsg:3035") %>%# change crs to ETRS89 / ETRS-LAEA
+  st_union()
+```
+
+Quick plot:
+
+```{r}
+ggplot() +
+geom_sf(data = countries_sf_bg, fill = "grey80", color = NA) +
+xlim(c(2200000, 7150000)) +
+ylim(c(1380000, 5500000)) +
+theme(axis.text.x=element_blank(),
+      axis.ticks.x=element_blank(),
+      axis.text.y=element_blank(),
+      axis.ticks.y=element_blank() 
+)
+```
+
+Export for further use:
+
+```{r}
+save(countries_sf_bg, file=file.path(outdir, "countries_sf_bg.rds"))
+```
+
+### Covered EU and neighboring countries
+
+Download a second set of polygons, this time only the countries that are covered by the data. This will be used as a basis for spatializing the extracted data.
+
+```{r}
+countries_sf <- ne_countries(country = countries,
+                             type = "countries",
+                             scale="medium")%>%
+  st_as_sf() %>% # convert from SpatialPolygons* to simple features
+  st_transform(crs = "epsg:3035") # change crs to ETRS89 / ETRS-LAEA
+```
+
+Quick plot:
+
+```{r}
+ggplot() +
+geom_sf(data = countries_sf, fill = "grey80", color = NA) +
+xlim(c(2200000, 7150000)) +
+ylim(c(1380000, 5500000)) +
+theme(axis.text.x=element_blank(),
+      axis.ticks.x=element_blank(),
+      axis.text.y=element_blank(),
+      axis.ticks.y=element_blank() 
+)
+```
+
+Export for further use:
+
+```{r}
+save(countries_sf, file=file.path(outdir, "countries_sf.rds"))
+```
+
+# Data processing
+
+As the tables containing the original data are inconsistently structured, each of them needs to be prepared separately and semi-manually. The following scripts will take care of that.
