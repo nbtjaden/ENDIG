@@ -1,5 +1,4 @@
 ---
-colmuns---
 title: "ENDIG: clean 2015 data"
 author: "Nils Tjaden"
 date: "`r Sys.Date()`"
