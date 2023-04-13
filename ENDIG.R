@@ -16,10 +16,10 @@ disease_IDs_additional <- subset(disease_IDs, !disease_IDs %in% disease_IDs_ECan
 load(file.path("./data/processed/europe.rds"))
 
 # spatial data disease surveillance systems
-disdata <- readRDS(file=file.path("./data/shiny/data_EUmap.rds"))
+data_spatial <- readRDS(file=file.path("./data/shiny/data_EUmap.rds"))
 
 # non-spatial data disease surveillance systems
-dat <- readRDS(file.path("./data/shiny/data_heatmap.rds"))
+data_heatmap <- readRDS(file.path("./data/shiny/data_heatmap.rds"))
 
 
 ####################################
@@ -133,7 +133,7 @@ server <- function(input, output, session){
   # Plot the EU map
   output$EUmap <-renderPlot(
     bgmap + 
-      geom_sf(data=disdata[[input$systype]][[as.character(input$year)]], color=col.borders,
+      geom_sf(data=data_spatial[[input$systype]][[as.character(input$year)]], color=col.borders,
               aes_string(fill=input$disease)) +
       scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE) +
       geom_sf(data = europe, fill = NA, color = col.bg.line)
@@ -141,7 +141,7 @@ server <- function(input, output, session){
   
   # Plot the heatmap
   output$heatmap <- renderPlot(
-    ggplot(dat[[input$systype]], aes_string(x="Year", y="Country", fill=input$disease)) +
+    ggplot(data_heatmap[[input$systype]], aes_string(x="Year", y="Country", fill=input$disease)) +
       geom_tile(color=col.borders)+
       scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE) +
       scale_y_discrete(limits=rev) +
