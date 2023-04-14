@@ -112,7 +112,7 @@ process_year <- function(year){
     }
     
     dat <- factorize(dat)
-    # add data to list objscts
+    # add data to list objects
     
     
   }
@@ -133,12 +133,19 @@ process_diseasesheet <- function(year, dis){
   } else {
     if(dis %in% c("Hep B", "Hep C")){
       dat <- read_HEPsheet(year, dis)
-      dat <- basic_cleanup(dat)
-    }else{message(paste("skipping non-standard table for", dis, "in", year))}
+    }else{
+      if(dis %in% "HIV and AIDS"){
+        dat <- read_HIVsheet(year, dis)
+      }else{
+      message(paste("non-standard table without processing exception for", dis, "in", year, "\n --> returning empty sheet"))
+        dat <- empty_sheet
+        }
+      }
   }
-
+  dat <- basic_cleanup(dat)
   dat <- clean_duplicates(dat, year, dis, verbose=FALSE)
   dat <- dat %>% recode_classification() %>% add_NAcountries(countries=countries)
+  return(dat)
 }
 ```
 
@@ -153,6 +160,7 @@ table_OK <- function(year, dis){
 ```
 
 ## read_sheet
+
 read a disease table sheet that follows the usual layout
 
 ```{r}
@@ -182,6 +190,7 @@ read_sheet <- function(year, dis){
 ```
 
 ## read_HEPsheet
+
 2015 and 2016 data for Hep B and C have a slightly different format and require individual processing
 
 ```{r}
@@ -236,7 +245,42 @@ read_HEPsheet <- function(year, dis){
 
 ```
 
+## read_HIVsheet
+2015 and 2016 data for HIV have a completely different format and require individual processing
 
+```{r}
+read_HIVsheet <- function(year, dis){
+  message("Processing ", year,  " HIV/AIDS table with non-unique column names:")
+  dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                             paste0("data/raw/Table-surveillance_systems_overview_",
+                                                    year, ".xlsx")),
+                            range = "A5:K36",
+                            sheet = dis)
+  
+  # dissect the two sub-tables in the sheet
+  dat1 <- dat[, c(1, 4, 5)]
+  names(dat1) <- c("Country", "compu", "compre")
+  dat2 <- dat[, c(7, 10, 11)]
+  names(dat2) <- c("Country", "compu", "compre")
+  # and put them back together as a single table
+  dat <- rbind(dat1, dat2)
+  
+  # There are no columns for active/passive nor aggregated/case-based
+  # Add them, treating them as unspecified
+  dat$act <- "."
+  dat$agg <- "."
+  
+  # encoding for "unknown/unspecified" in inconsistent with the other diseases
+  # replace with the standard "."
+  dat$compre[dat$compre %in% "Not specified/unknown"] <- "."
+  
+  # encoding for compulsory vs. voluntary uses "C" instead of "Cp"
+  # fix that to avoid misclassifications downstream
+  dat$compu[dat$compu %in% "C"] <- "Cp"
+  
+  return(data.frame(dat))
+}
+```
 
 ## basic_cleanup
 
@@ -330,6 +374,7 @@ recode_classification <-function(dat){
                       "Se" = "sentinel",
                       "V"  = "voluntary",
                       "O"  = "unspecified",
+                      "NS/unk" = "unspecified",
                       "C"  = "case-based",
                       "P"  = "passive"))
       ) %>% mutate_at(
