@@ -71,6 +71,14 @@ Load previously downloaded country polygons from NaturalEarth:
 load(file = file.path("./data/processed/countries_sf.rds"))
 ```
 
+## Empty data sheet
+
+Some of the yearly workbook files do not have data sheets for certain diseases. Create an empty table as a placeholder.
+
+```{r}
+empty_sheet <- data.frame(Country = sort(countries), compu = "none", compre = "none", act = "none", agg = "none")
+```
+
 # Output data
 
 Initialize the output data structure. We will create two separate list objects for plotting the maps and heatmaps, respectively. Each of them contain another set of lists for the different surveillance system characteristics.
@@ -97,12 +105,17 @@ process_year <- function(year){
     # if there is no table sheet for this disease in this year's workbook,
     # just create an empty data.frame
     if(is.na(dis_local)){
-      dat <- data.frame()
+      dat <- empty_sheet
     }
     # otherwise prepare the data
     else{
       dat <- process_diseasesheet(year, dis_local)
     }
+    
+    dat <- factorize(dat)
+    # add data to list objscts
+    
+    
   }
 }
 ```
@@ -277,6 +290,7 @@ table_OK <- function(year, dis){
 ```
 
 ```{r}
+
 
 ```
 
