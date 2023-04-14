@@ -106,9 +106,8 @@ process_year <- function(year){
     # just create an empty data.frame
     if(is.na(dis_local)){
       dat <- empty_sheet
-    }
+    }else{
     # otherwise prepare the data
-    else{
       dat <- process_diseasesheet(year, dis_local)
     }
     
@@ -139,96 +138,14 @@ process_diseasesheet <- function(year, dis){
 }
 ```
 
-## add_NAcountries
+## table_OK
 
-Data sheets contain a short list of countries that do have a surveillance system in place. For plotting, explicit information about no system existing in a country is also needed. This function fills the gaps.
-
-```{r}
-add_NAcountries <- function(dat, countries){
-  dat <- dat %>% right_join(data.frame(Country=countries), by="Country")
-  dat <- dat[order(dat$Country), ]
-  dat[is.na(dat)] <- "none"
-  return(dat)
-}
-```
-
-## recode_classification
-
-recode ECDC's abbreviated classification into full words, e.g.:
-
--    "Cp" -\> "compulsory"
-
--   "A" -\> "aggregated" or "active"
-
--   "O", "." -\> "unspecified"
+Convenience function to heck if a certain combination of year and disease ID is on the list of table sheets needing non-standard processing.
 
 ```{r}
-recode_classification <-function(dat){
-  dat <- dat %>%
-      mutate_at(
-        vars(c("compu", "compre", "act", "agg")),
-        list(~ dplyr::recode(.,
-                      "Cp" = "compulsory",
-                      "Co" = "comprehensive",
-                      "Se" = "sentinel",
-                      "V"  = "voluntary",
-                      "O"  = "unspecified",
-                      "C"  = "case-based",
-                      "P"  = "passive"))
-      ) %>% mutate_at(
-        vars(c("compu", "compre", "act", "agg")),
-        list(~ stringr::str_replace_all(., fixed("."), "unspecified"))
-      ) %>% mutate_at(
-        vars(c("compu", "compre", "act", "agg")),
-        list(~ tidyr::replace_na(., "none"))
-      )
-    # "A" is used for different things in two columns,
-    # we'll have to do these separately:
-    dat <- dat %>% mutate_at(vars(c("act")),
-                             list(~dplyr::recode(., "A" = "active"))) %>%
-      mutate_at(vars(c("agg")),
-                list(~dplyr::recode(., "A" = "aggregated")))
+table_OK <- function(year, dis){
+  !paste(year, dis) %in% special_processing_list
 }
-```
-
-## clean_duplicates
-
-Some sheets have multiple entries per country. For plotting a map, this needs to be reduced to a single entry per country. This function checks whether the different entries agree on the classification of a surveillance system characteristic. If so, the new entry will retain the consensus value, otherwise it will be set to "unspecified".
-
-```{r}
-clean_duplicates <- function(dat, year, dis){
-  dupe_countries <- unique(dat$Country[which(duplicated(dat$Country))])
-  if(length(dupe_countries)>0){
-    message(paste("duplicate country rows found in", dis, "sheet:"))
-    for(dupe_country in dupe_countries){
-      cat("\ninput data:\n")
-      dupe_rows <- which(dat$Country %in% dupe_country)
-      sub <- dat[dupe_rows, ]
-      print(sub)
-      
-      # Start with the assumption that rows for this country disagree in all 
-      # columns, setting all columns to "." for unspecified.
-      out <- c(dupe_country, rep(".", times=4))
-      
-      # if all rows of a column are identical, overwrite that spot in the
-      # output row with the corresponding value (catching it from the first row of sub)
-      if(length(unique(sub[,2]))==1){out[2] <- sub[1,2]}
-      if(length(unique(sub[,3]))==1){out[3] <- sub[1,3]}
-      if(length(unique(sub[,4]))==1){out[4] <- sub[1,4]}
-      if(length(unique(sub[,5]))==1){out[5] <- sub[1,5]}
-      
-      # overwrite the first row for this country with the new data
-      dat[dupe_rows[1],] <- out
-      # remove the remaining rows for this country
-      dat <- dat[-dupe_rows[2:length(dupe_rows)],]
-      
-      cat("\nturns to:\n")
-      print(dat[dupe_rows[1],])
-    }
-  }
-  return(dat)
-}
-
 ```
 
 ## read_sheet
@@ -279,19 +196,98 @@ read_sheet <- function(year, dis){
 
 ```
 
-## table_OK
+## clean_duplicates
 
-Convenience function to heck if a certain combination of year and disease ID is on the list of table sheets needing non-standard processing.
+Some sheets have multiple entries per country. For plotting a map, this needs to be reduced to a single entry per country. This function checks whether the different entries agree on the classification of a surveillance system characteristic. If so, the new entry will retain the consensus value, otherwise it will be set to "unspecified".
 
 ```{r}
-table_OK <- function(year, dis){
-  !paste(year, dis) %in% special_processing_list
+clean_duplicates <- function(dat, year, dis){
+  dupe_countries <- unique(dat$Country[which(duplicated(dat$Country))])
+  if(length(dupe_countries)>0){
+    message(paste("duplicate country rows found in", dis, "sheet:"))
+    for(dupe_country in dupe_countries){
+      cat("\ninput data:\n")
+      dupe_rows <- which(dat$Country %in% dupe_country)
+      sub <- dat[dupe_rows, ]
+      print(sub)
+      
+      # Start with the assumption that rows for this country disagree in all 
+      # columns, setting all columns to "." for unspecified.
+      out <- c(dupe_country, rep(".", times=4))
+      
+      # if all rows of a column are identical, overwrite that spot in the
+      # output row with the corresponding value (catching it from the first row of sub)
+      if(length(unique(sub[,2]))==1){out[2] <- sub[1,2]}
+      if(length(unique(sub[,3]))==1){out[3] <- sub[1,3]}
+      if(length(unique(sub[,4]))==1){out[4] <- sub[1,4]}
+      if(length(unique(sub[,5]))==1){out[5] <- sub[1,5]}
+      
+      # overwrite the first row for this country with the new data
+      dat[dupe_rows[1],] <- out
+      # remove the remaining rows for this country
+      dat <- dat[-dupe_rows[2:length(dupe_rows)],]
+      
+      cat("\nturns to:\n")
+      print(dat[dupe_rows[1],])
+    }
+  }
+  return(dat)
+}
+
+```
+
+## recode_classification
+
+recode ECDC's abbreviated classification into full words, e.g.:
+
+-   "Cp" -\> "compulsory"
+
+-   "A" -\> "aggregated" or "active"
+
+-   "O", "." -\> "unspecified"
+
+```{r}
+recode_classification <-function(dat){
+  dat <- dat %>%
+      mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ dplyr::recode(.,
+                      "Cp" = "compulsory",
+                      "Co" = "comprehensive",
+                      "Se" = "sentinel",
+                      "V"  = "voluntary",
+                      "O"  = "unspecified",
+                      "C"  = "case-based",
+                      "P"  = "passive"))
+      ) %>% mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ stringr::str_replace_all(., fixed("."), "unspecified"))
+      ) %>% mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ tidyr::replace_na(., "none"))
+      )
+    # "A" is used for different things in two columns,
+    # we'll have to do these separately:
+    dat <- dat %>% mutate_at(vars(c("act")),
+                             list(~dplyr::recode(., "A" = "active"))) %>%
+      mutate_at(vars(c("agg")),
+                list(~dplyr::recode(., "A" = "aggregated")))
 }
 ```
 
+## add_NAcountries
+
+Data sheets contain a short list of countries that do have a surveillance system in place. For plotting, explicit information about no system existing in a country is also needed. This function fills the gaps.
+
 ```{r}
-
-
+add_NAcountries <- function(dat, countries){
+  dat <- dat %>% right_join(data.frame(Country=countries), by="Country")
+  dat <- dat[order(dat$Country), ]
+  dat[is.na(dat)] <- "none"
+  return(dat)
+}
 ```
+
+
 
 # TESTING
