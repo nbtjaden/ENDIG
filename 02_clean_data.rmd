@@ -129,8 +129,12 @@ process_diseasesheet <- function(year, dis){
   # check if special processing is required
   if(table_OK(year, dis)){
     dat <- read_sheet(year, dis)
+    dat <- basic_cleanup(dat)
   } else {
-    message(paste("skipping non-standard table for", dis, "in", year))
+    if(dis %in% c("Hep B", "Hep C")){
+      dat <- read_HEPsheet(year, dis)
+      dat <- basic_cleanup(dat)
+    }else{message(paste("skipping non-standard table for", dis, "in", year))}
   }
 
   dat <- clean_duplicates(dat, year, dis, verbose=FALSE)
@@ -149,7 +153,6 @@ table_OK <- function(year, dis){
 ```
 
 ## read_sheet
-
 read a disease table sheet that follows the usual layout
 
 ```{r}
@@ -157,7 +160,8 @@ read_sheet <- function(year, dis){
   # read the sheet, skipping the top 2 rows and manually assigning
   # column names
   dat <-  readxl::read_xlsx(path = file.path(getwd(),
-                                             paste0("data/raw/Table-surveillance_systems_overview_", year, ".xlsx")),
+                                             paste0("data/raw/Table-surveillance_systems_overview_",
+                                                    year, ".xlsx")),
                             skip = 2,
                             col_types = "text",
                             col_names = c("Country",
@@ -172,7 +176,73 @@ read_sheet <- function(year, dis){
                                           "O",
                                           "casedef"),
                             sheet = dis)
-  if(nrow(dat) == 0){#if the sheet exists, but is empty, create a dummy
+  return(data.frame(dat))
+}
+
+```
+
+## read_HEPsheet
+2015 and 2016 data for Hep B and C have a slightly different format and require individual processing
+
+```{r}
+read_HEPsheet <- function(year, dis){
+  if(year == 2015){
+    # read the sheet, skipping the top 2 rows and manually assigning
+    # column names
+    dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                               paste0("data/raw/Table-surveillance_systems_overview_",
+                                                      year, ".xlsx")),
+                              skip = 2,
+                              col_types = "text",
+                              col_names = c("Country",
+                                            "src",
+                                            "coverage", # extra "coverage" column
+                                            "compre",
+                                            "agg",
+                                            "L",
+                                            "P",
+                                            "H",
+                                            "O",
+                                            "casedef"),
+                              sheet = dis)
+    # add missing columns
+    dat$act <- "."
+    dat$compu <- "."
+  }else{
+    if(year == 2016){
+          # column names
+    dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                               paste0("data/raw/Table-surveillance_systems_overview_",
+                                                      year, ".xlsx")),
+                              skip = 2,
+                              col_types = "text",
+                              col_names = c("Country",
+                                            "src",
+                                            "compu",
+                                            "compre",
+                                            "act",
+                                            "agg",
+                                            "L",
+                                            "P",
+                                            "H",
+                                            "O",
+                                            "casedef",
+                                            "coverage"), # extra "coverage" column
+                              sheet = dis)
+    }
+  }
+  return(data.frame(dat))
+}
+
+```
+
+
+
+## basic_cleanup
+
+```{r}
+basic_cleanup <- function(dat){
+    if(nrow(dat) == 0){#if the sheet exists, but is empty, create a dummy
     dat <- data.frame(Country="dummy",
                       compu="dummy",
                       compre="dummy",
@@ -191,9 +261,8 @@ read_sheet <- function(year, dis){
   # have a known country name in the first column. This also removes 
   # the dummy row created for empty tables.
   dat <- dat[which(dat$Country %in% countries),]
-  return(data.frame(dat))
+  return(dat)
 }
-
 ```
 
 ## clean_duplicates
