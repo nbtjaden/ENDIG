@@ -82,6 +82,10 @@ data_heatmap <- list(compulsory=list(), comprehensive=list(), active=list(), agg
 
 # Functions
 
+## process_year
+
+Highest level processing function. For a given year, `process_year()` iterates over all diseases, checks if there is data available and either calls `process_disease()` to retrieve the data or creates an empty data.frame.
+
 ```{r}
 process_year <- function(year){
   message("+++ processing year ", year, " +++")
@@ -97,13 +101,19 @@ process_year <- function(year){
     }
     # otherwise prepare the data
     else{
-      process_disease(year, dis_local)
+      dat <- process_diseasesheet(year, dis_local)
     }
   }
 }
+```
 
+## process_diseasesheet
 
-process_disease <- function(year, dis){
+Main processing function responsible for handling one xlsx workbook sheet worth of data.
+
+```{r}
+
+process_diseasesheet <- function(year, dis){
   # check if special processing is required
   if(table_OK(year, dis)){
     dat <- read_sheet(year, dis)
@@ -113,10 +123,15 @@ process_disease <- function(year, dis){
  
   dat <- clean_duplicates(dat, year, dis)
   
-   
 }
 
+```
 
+## clean_duplicates
+
+Some sheets have multiple entries per country. For plotting a map, this needs to be reduced to a single entry per country. This function checks whether the different entries agree on the classification of a surveillance system characteristic. If so, the new entry will retain the consensus value, otherwise it will be set to "unspecified".
+
+```{r}
 clean_duplicates <- function(dat, year, dis){
   dupe_countries <- unique(dat$Country[which(duplicated(dat$Country))])
   if(length(dupe_countries)>0){
@@ -150,14 +165,13 @@ clean_duplicates <- function(dat, year, dis){
   return(dat)
 }
 
+```
 
+## read_sheet
 
+read a disease table sheet that follows the usual layout
 
-
-
-
-
-# read a disease table sheet that follows the usual layout
+```{r}
 read_sheet <- function(year, dis){
   # read the sheet, skipping the top 2 rows and manually assigning
   # column names
@@ -199,10 +213,13 @@ read_sheet <- function(year, dis){
   return(data.frame(dat))
 }
 
+```
 
+## table_OK
 
-# check if a certain combination of year and disease ID is on 
-# the list of table sheets needing non-standard processing
+Convenience function to heck if a certain combination of year and disease ID is on the list of table sheets needing non-standard processing.
+
+```{r}
 table_OK <- function(year, dis){
   !paste(year, dis) %in% special_processing_list
 }
