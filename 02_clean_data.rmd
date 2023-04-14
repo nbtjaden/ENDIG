@@ -133,7 +133,7 @@ process_diseasesheet <- function(year, dis){
     message(paste("skipping non-standard table for", dis, "in", year))
   }
 
-  dat <- clean_duplicates(dat, year, dis)
+  dat <- clean_duplicates(dat, year, dis, verbose=FALSE)
   dat <- dat %>% recode_classification() %>% add_NAcountries(countries=countries)
 }
 ```
@@ -201,15 +201,17 @@ read_sheet <- function(year, dis){
 Some sheets have multiple entries per country. For plotting a map, this needs to be reduced to a single entry per country. This function checks whether the different entries agree on the classification of a surveillance system characteristic. If so, the new entry will retain the consensus value, otherwise it will be set to "unspecified".
 
 ```{r}
-clean_duplicates <- function(dat, year, dis){
+clean_duplicates <- function(dat, year, dis, verbose=TRUE){
   dupe_countries <- unique(dat$Country[which(duplicated(dat$Country))])
   if(length(dupe_countries)>0){
-    message(paste("duplicate country rows found in", dis, "sheet:"))
+    message(paste("duplicate country rows resolved in sheet:", dis))
     for(dupe_country in dupe_countries){
-      cat("\ninput data:\n")
       dupe_rows <- which(dat$Country %in% dupe_country)
       sub <- dat[dupe_rows, ]
-      print(sub)
+      if(verbose){
+        cat("\ninput data:\n")
+        print(sub)
+        }
       
       # Start with the assumption that rows for this country disagree in all 
       # columns, setting all columns to "." for unspecified.
@@ -227,8 +229,10 @@ clean_duplicates <- function(dat, year, dis){
       # remove the remaining rows for this country
       dat <- dat[-dupe_rows[2:length(dupe_rows)],]
       
-      cat("\nturns to:\n")
-      print(dat[dupe_rows[1],])
+      if(verbose){
+        cat("\nturns to:\n")
+        print(dat[dupe_rows[1],])
+      }
     }
   }
   return(dat)
