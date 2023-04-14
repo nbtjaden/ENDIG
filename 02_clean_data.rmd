@@ -120,11 +120,62 @@ process_diseasesheet <- function(year, dis){
   } else {
     message(paste("skipping non-standard table for", dis, "in", year))
   }
- 
-  dat <- clean_duplicates(dat, year, dis)
-  
-}
 
+  dat <- clean_duplicates(dat, year, dis)
+  dat <- dat %>% recode_classification() %>% add_NAcountries(countries=countries)
+}
+```
+
+## add_NAcountries
+
+Data sheets contain a short list of countries that do have a surveillance system in place. For plotting, explicit information about no system existing in a country is also needed. This function fills the gaps.
+
+```{r}
+add_NAcountries <- function(dat, countries){
+  dat <- dat %>% right_join(data.frame(Country=countries), by="Country")
+  dat <- dat[order(dat$Country), ]
+  dat[is.na(dat)] <- "none"
+  return(dat)
+}
+```
+
+## recode_classification
+
+recode ECDC's abbreviated classification into full words, e.g.:
+
+-    "Cp" -\> "compulsory"
+
+-   "A" -\> "aggregated" or "active"
+
+-   "O", "." -\> "unspecified"
+
+```{r}
+recode_classification <-function(dat){
+  dat <- dat %>%
+      mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ dplyr::recode(.,
+                      "Cp" = "compulsory",
+                      "Co" = "comprehensive",
+                      "Se" = "sentinel",
+                      "V"  = "voluntary",
+                      "O"  = "unspecified",
+                      "C"  = "case-based",
+                      "P"  = "passive"))
+      ) %>% mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ stringr::str_replace_all(., fixed("."), "unspecified"))
+      ) %>% mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ tidyr::replace_na(., "none"))
+      )
+    # "A" is used for different things in two columns,
+    # we'll have to do these separately:
+    dat <- dat %>% mutate_at(vars(c("act")),
+                             list(~dplyr::recode(., "A" = "active"))) %>%
+      mutate_at(vars(c("agg")),
+                list(~dplyr::recode(., "A" = "aggregated")))
+}
 ```
 
 ## clean_duplicates
@@ -228,3 +279,5 @@ table_OK <- function(year, dis){
 ```{r}
 
 ```
+
+# TESTING
