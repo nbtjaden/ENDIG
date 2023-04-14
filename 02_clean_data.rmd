@@ -288,6 +288,19 @@ add_NAcountries <- function(dat, countries){
 }
 ```
 
+## factorize
 
+Turn the plain text encoding of surveillance system characteristics into factors. This is useful for consistent plotting.
+
+```{r}
+factorize <- function(dat){
+  dat$compu <- factor(dat$compu, levels=c("none", "compulsory", "voluntary", "unspecified", "no data"))
+  dat$compre <- factor(dat$compre, levels=c("none", "comprehensive", "sentinel", "unspecified", "no data"))
+  dat$act <- factor(dat$act, levels=c("none", "active", "passive", "unspecified", "no data"))
+  dat$agg <- factor(dat$agg, levels=c("none", "case-based", "aggregated", "unspecified", "no data"))
+  return(dat)
+}
+
+```
 
 # TESTING
