@@ -129,7 +129,7 @@ for(year in 2015:2021){
   }
 }
 
-save(data_spatial, file=file.path(getwd(), "data/processed/data_spatial.rds"))
+save(data_spatial, file=file.path(getwd(), "data/shiny/data_spatial.rds"))
 ```
 
 ## process_diseasesheet
