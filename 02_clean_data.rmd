@@ -84,7 +84,8 @@ empty_sheet <- data.frame(Country = sort(countries), compu = "none", compre = "n
 Initialize the output data structure. We will create two separate list objects for plotting the maps and heatmaps, respectively. Each of them contain another set of lists for the different surveillance system characteristics.
 
 ```{r}
-data_spatial <- list(compulsory=list(), comprehensive=list(), active=list(), aggregated=list())
+#data_spatial <- list(compulsory=list(), comprehensive=list(), active=list(), aggregated=list())
+
 data_heatmap <- list(compulsory=list(), comprehensive=list(), active=list(), aggregated=list())
 ```
 
@@ -95,8 +96,14 @@ data_heatmap <- list(compulsory=list(), comprehensive=list(), active=list(), agg
 Highest level processing function. For a given year, `process_year()` iterates over all diseases, checks if there is data available and either calls `process_disease()` to retrieve the data or creates an empty data.frame.
 
 ```{r}
-process_year <- function(year){
+data_spatial <- list()
+for(year in 2015:2021){
   message("+++ processing year ", year, " +++")
+  
+  # add sublist for year currently being processed
+  data_spatial[[paste(year)]] <- list()
+  
+  # get disease IDs used for this year
   disease_IDs <- meta %>% select(ID_master, paste0("ID_ECDC_", year))
   
   for (i in 1:nrow(disease_IDs)){
@@ -114,9 +121,15 @@ process_year <- function(year){
     dat <- factorize(dat)
     # add data to list objects
     
+    dat_st <- countries_sf %>% left_join(dat, by=c("name_long" = "Country"))
+    
+    data_spatial[[paste(year)]][[dis_global]] <- dat_st
+    
     
   }
 }
+
+save(data_spatial, file=file.path(getwd(), "data/processed/data_spatial.rds"))
 ```
 
 ## process_diseasesheet
