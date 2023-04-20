@@ -87,64 +87,7 @@ Some of the yearly workbook files do not have data sheets for certain diseases. 
 empty_sheet <- data.frame(Country = sort(countries), compu = "none", compre = "none", act = "none", agg = "none")
 ```
 
-# Output data
-
-Initialize the output data structure. We will create two separate list objects for plotting the maps and heatmaps, respectively. Each of them contain another set of lists for the different surveillance system characteristics.
-
-```{r}
-data_spatial <- list()
-
-table_heatmap <- data.frame(expand.grid(Year = years, Country = countries))
-data_heatmap <- list()
-for(dis in meta$ID_master){
-  data_heatmap[[dis]] <- table_heatmap
-}
-
-```
-
 # Functions
-
-## process_year
-
-Highest level processing function. For a given year, `process_year()` iterates over all diseases, checks if there is data available and either calls `process_disease()` to retrieve the data or creates an empty data.frame.
-
-```{r}
-for(year in years){
-  message("+++ processing year ", year, " +++")
-  
-  # add sublist for year currently being processed
-  data_spatial[[paste(year)]] <- list()
-  
-  # get disease IDs used for this year
-  disease_IDs <- meta %>% select(ID_master, paste0("ID_ECDC_", year))
-  
-  for (i in 1:nrow(disease_IDs)){
-    dis_global <- as.character(disease_IDs[i, "ID_master"])
-    dis_local <- as.character(disease_IDs[i, 2])
-    # if there is no table sheet for this disease in this year's workbook,
-    # just create an empty data.frame
-    if(is.na(dis_local)){
-      dat <- empty_sheet
-    }else{
-    # otherwise prepare the data
-      dat <- process_diseasesheet(year, dis_local)
-    }
-    
-    dat <- factorize(dat)
-    
-    # add spatialized data to list
-    dat_st <- countries_sf %>% left_join(dat, by=c("name_long" = "Country"))
-    data_spatial[[paste(year)]][[dis_global]] <- dat_st
-    
-    ## sort data into the appropriate spot of the heatmap data object
-    dat_hm <- cbind(Year = year, dat)
-    data_heatmap[[dis_global]] <- dat_hm %>% left_join(x=table_heatmap, by = c("Year", "Country"))
-  }
-}
-
-saveRDS(data_spatial, file=file.path(getwd(), "data/shiny/data_spatial.rds"))
-saveRDS(data_heatmap, file=file.path(getwd(), "data/shiny/data_heatmap.rds"))
-```
 
 ## process_diseasesheet
 
@@ -448,4 +391,72 @@ factorize <- function(dat){
 
 ```
 
-# TESTING
+#Data processing
+
+## Prepare output data objects
+
+Initialize the output data structure. We will create two separate list objects 
+for plotting the maps and heatmaps, respectively. Each of them will contain 
+sub-structured for the different surveillance system characteristics.
+
+```{r}
+data_spatial <- list()
+
+table_heatmap <- data.frame(expand.grid(Year = years, Country = countries))
+data_heatmap <- list()
+for(dis in meta$ID_master){
+  data_heatmap[[dis]] <- table_heatmap
+}
+
+```
+
+## Main processing loop
+Iterate over all years, then all diseases. Check if there is data available
+for a given year and disease and either call `process_disease()` to retrieve
+the data or create an empty data.frame. Turn the retrieved data into factors.
+Sort into the pre-defined data objects.
+
+```{r}
+for(year in years){
+  message("+++ processing year ", year, " +++")
+  
+  # add sublist for year currently being processed
+  data_spatial[[paste(year)]] <- list()
+  
+  # get disease IDs used for this year
+  disease_IDs <- meta %>% select(ID_master, paste0("ID_ECDC_", year))
+  
+  for (i in 1:nrow(disease_IDs)){
+    dis_global <- as.character(disease_IDs[i, "ID_master"])
+    dis_local <- as.character(disease_IDs[i, 2])
+    # if there is no table sheet for this disease in this year's workbook,
+    # just create an empty data.frame
+    if(is.na(dis_local)){
+      dat <- empty_sheet
+    }else{
+    # otherwise prepare the data
+      dat <- process_diseasesheet(year, dis_local)
+    }
+    
+    dat <- factorize(dat)
+    
+    # add spatialized data to list
+    dat_st <- countries_sf %>% left_join(dat, by=c("name_long" = "Country"))
+    data_spatial[[paste(year)]][[dis_global]] <- dat_st
+    
+    ## sort data into the appropriate spot of the heatmap data object
+    dat_hm <- cbind(Year = year, dat)
+    data_heatmap[[dis_global]] <- dat_hm %>% left_join(x=table_heatmap, by = c("Year", "Country"))
+  }
+}
+```
+
+## Export data to file system
+Exports the prepared data objects for use in the shiny app.
+
+```{r}
+saveRDS(data_spatial, file=file.path(getwd(), "data/shiny/data_spatial.rds"))
+saveRDS(data_heatmap, file=file.path(getwd(), "data/shiny/data_heatmap.rds"))
+```
+
+
