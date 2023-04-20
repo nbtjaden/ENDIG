@@ -3,7 +3,7 @@
 library(shiny)
 library(ggplot2)
 library(sf)
-#library(bslib)  # shiny themes (optional)
+library(bslib)  # shiny themes (optional)
 
 ####################################
 ## load data
@@ -61,7 +61,7 @@ bgmap <- ggplot() +
 ## User interface
 
 ui <- fluidPage(
-  #theme=bs_theme(bootswatch="flatly"), # optional theme, requires bslib
+  theme=bs_theme(bootswatch="flatly"), # optional theme, requires bslib
   titlePanel("ENDIG: European Notifiable Diseases Interactive Geovisualization"),
   sidebarLayout(
     # Sidebar/left panel
