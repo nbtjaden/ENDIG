@@ -401,13 +401,7 @@ sub-structured for the different surveillance system characteristics.
 
 ```{r}
 data_spatial <- list()
-
-table_heatmap <- data.frame(expand.grid(Year = years, Country = countries))
 data_heatmap <- list()
-for(dis in meta$ID_master){
-  data_heatmap[[dis]] <- table_heatmap
-}
-
 ```
 
 ## Main processing loop
@@ -446,13 +440,13 @@ for(year in years){
     
     ## sort data into the appropriate spot of the heatmap data object
     dat_hm <- cbind(Year = year, dat)
-    data_heatmap[[dis_global]] <- dat_hm %>% left_join(x=table_heatmap, by = c("Year", "Country"))
+    data_heatmap[[dis_global]] <- rbind(data_heatmap[[dis_global]], dat_hm)
   }
 }
 ```
 
 ## Export data to file system
-Exports the prepared data objects for use in the shiny app.
+Exports the prepared data objects for use in the shiny
 
 ```{r}
 saveRDS(data_spatial, file=file.path(getwd(), "data/shiny/data_spatial.rds"))
