@@ -16,7 +16,7 @@ disease_IDs_additional <- subset(disease_IDs, !disease_IDs %in% disease_IDs_ECan
 load(file.path("./data/processed/europe.rds"))
 
 # spatial data disease surveillance systems
-data_spatial <- readRDS(file=file.path("./data/shiny/data_EUmap.rds"))
+data_spatial <- readRDS(file=file.path("./data/shiny/data_spatial.rds"))
 
 # non-spatial data disease surveillance systems
 data_heatmap <- readRDS(file.path("./data/shiny/data_heatmap.rds"))
@@ -83,7 +83,8 @@ ui <- fluidPage(
         inline = FALSE,
         width = NULL,
         choiceNames = c("compulsory vs. voluntary", "comprehensive vs. sentinel", "active vs. passive", "aggregated vs. case-based"),
-        choiceValues = c("compulsory", "comprehensive", "active", "aggregated")
+        choiceValues = c("compu", "compre", "act", "agg")
+        #choiceValues = c("compulsory", "comprehensive", "active", "aggregated")
       )
     ),
     # Main Panel
@@ -114,7 +115,6 @@ ui <- fluidPage(
 ####################################
 ## Server
 server <- function(input, output, session){
-  
   # switch disease list based on radio buttons
   observe({
     x <- input$annex_list_chosen
@@ -129,12 +129,11 @@ server <- function(input, output, session){
     }
   }
   )
-  
+
   # Plot the EU map
   output$EUmap <-renderPlot(
-    bgmap + 
-      geom_sf(data=data_spatial[[input$systype]][[as.character(input$year)]], color=col.borders,
-              aes_string(fill=input$disease)) +
+    bgmap+
+      geom_sf(data_spatial[[as.character(input$year)]][[input$disease]], mapping=aes(fill = !! sym(input$systype))) +
       scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE) +
       geom_sf(data = europe, fill = NA, color = col.bg.line)
   )
