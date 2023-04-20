@@ -140,7 +140,7 @@ server <- function(input, output, session){
   
   # Plot the heatmap
   output$heatmap <- renderPlot(
-    ggplot(data_heatmap[[input$systype]], aes_string(x="Year", y="Country", fill=input$disease)) +
+    ggplot(data_heatmap[[input$disease]], aes(x=Year, y=Country, fill= !! sym(input$systype))) +
       geom_tile(color=col.borders)+
       scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE) +
       scale_y_discrete(limits=rev) +
