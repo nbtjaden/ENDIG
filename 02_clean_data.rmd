@@ -1,0 +1,456 @@
+---
+title: "ENDIG: clean data"
+author: "Nils Tjaden"
+date: "`r Sys.Date()`"
+output: html_document
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../documentation") })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# move knitr working directory up by one level so it's the same as
+# the on of the R Project 
+knitr::opts_knit$set(root.dir = '../') 
+```
+
+# Packages
+
+Load necessary packages:
+
+-   `readxl` tidyverse package for reading data from Office Open XML spreadsheet files
+-   `dplyr` for general-purpose data-wrangling
+-   `tidyr` for general-purpose data-wrangling
+-   `stringr` for manipulating strings
+-   `sf` for handling of spatial polygon data
+
+```{r, message=FALSE}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(sf)
+```
+
+# Constants
+
+## Disease meta data
+
+Load the main meta data file:
+
+```{r}
+load(file = file.path("./data/processed/meta.rds"))
+head(meta)
+```
+
+Read list of table sheets that require special processing due to differing format etc.:
+
+```{r}
+special_processing_list <- read.csv("./data/special_processing_required.csv")
+special_processing_list <- paste(special_processing_list$year,
+                                  special_processing_list$dis)
+special_processing_list
+```
+
+## EU countries
+
+List of all EU (and non-EU) countries appearing in the data:
+
+```{r}
+load(file = file.path("./data/processed/countries.rds"))
+countries
+```
+
+Note that these are 31 instead of the expected 27 countries. The list additionally includes: Iceland, Liechtenstein, Norway, United Kingdom. As of 2015, the UK is still on the list for Creutzfeldt-Jacob Disease (VCJD), but does not report anything else to ECDC.
+
+## Country polygons
+
+Load previously downloaded country polygons from NaturalEarth:
+
+```{r}
+load(file = file.path("./data/processed/countries_sf.rds"))
+```
+
+## Years
+all years in data range
+
+```{r}
+years <- 2015:2021
+```
+
+
+## Empty data sheet
+
+Some of the yearly workbook files do not have data sheets for certain diseases. Create an empty table as a placeholder.
+
+```{r}
+empty_sheet <- data.frame(Country = sort(countries), compu = "none", compre = "none", act = "none", agg = "none")
+```
+
+# Functions
+
+## process_diseasesheet
+
+Main processing function responsible for handling one xlsx workbook sheet worth of data.
+
+```{r}
+
+process_diseasesheet <- function(year, dis){
+  # check if special processing is required
+  if(table_OK(year, dis)){
+    dat <- read_sheet(year, dis)
+    dat <- basic_cleanup(dat)
+  } else {
+    if(dis %in% c("Hep B", "Hep C")){
+      dat <- read_HEPsheet(year, dis)
+    }else{
+      if(dis %in% "HIV and AIDS"){
+        dat <- read_HIVsheet(year, dis)
+      }else{
+      message(paste("non-standard table without processing exception for", dis, "in", year, "\n --> returning empty sheet"))
+        dat <- empty_sheet
+        }
+      }
+  }
+  dat <- basic_cleanup(dat)
+  dat <- clean_duplicates(dat, year, dis, verbose=FALSE)
+  dat <- dat %>% recode_classification() %>% add_NAcountries(countries=countries)
+  return(dat)
+}
+```
+
+## table_OK
+
+Convenience function to heck if a certain combination of year and disease ID is on the list of table sheets needing non-standard processing.
+
+```{r}
+table_OK <- function(year, dis){
+  !paste(year, dis) %in% special_processing_list
+}
+```
+
+## read_sheet
+
+read a disease table sheet that follows the usual layout
+
+```{r}
+read_sheet <- function(year, dis){
+  # read the sheet, skipping the top 2 rows and manually assigning
+  # column names
+  dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                             paste0("data/raw/Table-surveillance_systems_overview_",
+                                                    year, ".xlsx")),
+                            skip = 2,
+                            col_types = "text",
+                            col_names = c("Country",
+                                          "src",
+                                          "compu",
+                                          "compre",
+                                          "act",
+                                          "agg",
+                                          "L",
+                                          "P",
+                                          "H",
+                                          "O",
+                                          "casedef"),
+                            sheet = dis)
+  return(data.frame(dat))
+}
+
+```
+
+## read_HEPsheet
+
+2015 and 2016 data for Hep B and C have a slightly different format and require individual processing
+
+```{r}
+read_HEPsheet <- function(year, dis){
+  if(year == 2015){
+    # read the sheet, skipping the top 2 rows and manually assigning
+    # column names
+    dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                               paste0("data/raw/Table-surveillance_systems_overview_",
+                                                      year, ".xlsx")),
+                              skip = 2,
+                              col_types = "text",
+                              col_names = c("Country",
+                                            "src",
+                                            "coverage", # extra "coverage" column
+                                            "compre",
+                                            "agg",
+                                            "L",
+                                            "P",
+                                            "H",
+                                            "O",
+                                            "casedef"),
+                              sheet = dis)
+    # add missing columns
+    dat$act <- "."
+    dat$compu <- "."
+  }else{
+    if(year == 2016){
+          # column names
+    dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                               paste0("data/raw/Table-surveillance_systems_overview_",
+                                                      year, ".xlsx")),
+                              skip = 2,
+                              col_types = "text",
+                              col_names = c("Country",
+                                            "src",
+                                            "compu",
+                                            "compre",
+                                            "act",
+                                            "agg",
+                                            "L",
+                                            "P",
+                                            "H",
+                                            "O",
+                                            "casedef",
+                                            "coverage"), # extra "coverage" column
+                              sheet = dis)
+    }
+  }
+  return(data.frame(dat))
+}
+
+```
+
+## read_HIVsheet
+2015 and 2016 data for HIV have a completely different format and require individual processing
+
+```{r}
+read_HIVsheet <- function(year, dis){
+  message("Processing ", year,  " HIV/AIDS table with non-unique column names:")
+  dat <-  readxl::read_xlsx(path = file.path(getwd(),
+                                             paste0("data/raw/Table-surveillance_systems_overview_",
+                                                    year, ".xlsx")),
+                            range = "A5:K36",
+                            sheet = dis)
+  
+  # dissect the two sub-tables in the sheet
+  dat1 <- dat[, c(1, 4, 5)]
+  names(dat1) <- c("Country", "compu", "compre")
+  dat2 <- dat[, c(7, 10, 11)]
+  names(dat2) <- c("Country", "compu", "compre")
+  # and put them back together as a single table
+  dat <- rbind(dat1, dat2)
+  
+  # There are no columns for active/passive nor aggregated/case-based
+  # Add them, treating them as unspecified
+  dat$act <- "."
+  dat$agg <- "."
+  
+  # encoding for "unknown/unspecified" in inconsistent with the other diseases
+  # replace with the standard "."
+  dat$compre[dat$compre %in% "Not specified/unknown"] <- "."
+  
+  # encoding for compulsory vs. voluntary uses "C" instead of "Cp"
+  # fix that to avoid misclassifications downstream
+  dat$compu[dat$compu %in% "C"] <- "Cp"
+  
+  return(data.frame(dat))
+}
+```
+
+## basic_cleanup
+
+```{r}
+basic_cleanup <- function(dat){
+    if(nrow(dat) == 0){#if the sheet exists, but is empty, create a dummy
+    dat <- data.frame(Country="dummy",
+                      compu="dummy",
+                      compre="dummy",
+                      act="dummy",
+                      agg="dummy")
+  }
+  # select relevant columns
+  dat <- dat %>% select(Country, compu, compre, act, agg)
+  
+  # ECDC switched from using "Czech Republic" in earlier tables
+  # to using "Czechia" at some point.
+  # Harmonize that to "Czech Republic", if necessary
+  dat$Country[which(dat$Country %in% "Czechia")] <- "Czech Republic"
+  
+  # some sheets have non-data rows at the bottom. Keep only rows that 
+  # have a known country name in the first column. This also removes 
+  # the dummy row created for empty tables.
+  dat <- dat[which(dat$Country %in% countries),]
+  return(dat)
+}
+```
+
+## clean_duplicates
+
+Some sheets have multiple entries per country. For plotting a map, this needs to be reduced to a single entry per country. This function checks whether the different entries agree on the classification of a surveillance system characteristic. If so, the new entry will retain the consensus value, otherwise it will be set to "unspecified".
+
+```{r}
+clean_duplicates <- function(dat, year, dis, verbose=TRUE){
+  dupe_countries <- unique(dat$Country[which(duplicated(dat$Country))])
+  if(length(dupe_countries)>0){
+    message(paste("duplicate country rows resolved in sheet:", dis))
+    for(dupe_country in dupe_countries){
+      dupe_rows <- which(dat$Country %in% dupe_country)
+      sub <- dat[dupe_rows, ]
+      if(verbose){
+        cat("\ninput data:\n")
+        print(sub)
+        }
+      
+      # Start with the assumption that rows for this country disagree in all 
+      # columns, setting all columns to "." for unspecified.
+      out <- c(dupe_country, rep(".", times=4))
+      
+      # if all rows of a column are identical, overwrite that spot in the
+      # output row with the corresponding value (catching it from the first row of sub)
+      if(length(unique(sub[,2]))==1){out[2] <- sub[1,2]}
+      if(length(unique(sub[,3]))==1){out[3] <- sub[1,3]}
+      if(length(unique(sub[,4]))==1){out[4] <- sub[1,4]}
+      if(length(unique(sub[,5]))==1){out[5] <- sub[1,5]}
+      
+      # overwrite the first row for this country with the new data
+      dat[dupe_rows[1],] <- out
+      # remove the remaining rows for this country
+      dat <- dat[-dupe_rows[2:length(dupe_rows)],]
+      
+      if(verbose){
+        cat("\nturns to:\n")
+        print(dat[dupe_rows[1],])
+      }
+    }
+  }
+  return(dat)
+}
+
+```
+
+## recode_classification
+
+recode ECDC's abbreviated classification into full words, e.g.:
+
+-   "Cp" -\> "compulsory"
+
+-   "A" -\> "aggregated" or "active"
+
+-   "O", "." -\> "unspecified"
+
+```{r}
+recode_classification <-function(dat){
+  dat <- dat %>%
+      mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ dplyr::recode(.,
+                      "Cp" = "compulsory",
+                      "Co" = "comprehensive",
+                      "Se" = "sentinel",
+                      "V"  = "voluntary",
+                      "O"  = "unspecified",
+                      "NS/unk" = "unspecified",
+                      "C"  = "case-based",
+                      "P"  = "passive"))
+      ) %>% mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ stringr::str_replace_all(., fixed("."), "unspecified"))
+      ) %>% mutate_at(
+        vars(c("compu", "compre", "act", "agg")),
+        list(~ tidyr::replace_na(., "none"))
+      )
+    # "A" is used for different things in two columns,
+    # we'll have to do these separately:
+    dat <- dat %>% mutate_at(vars(c("act")),
+                             list(~dplyr::recode(., "A" = "active"))) %>%
+      mutate_at(vars(c("agg")),
+                list(~dplyr::recode(., "A" = "aggregated")))
+}
+```
+
+## add_NAcountries
+
+Data sheets contain a short list of countries that do have a surveillance system in place. For plotting, explicit information about no system existing in a country is also needed. This function fills the gaps.
+
+```{r}
+add_NAcountries <- function(dat, countries){
+  dat <- dat %>% right_join(data.frame(Country=countries), by="Country")
+  dat <- dat[order(dat$Country), ]
+  dat[is.na(dat)] <- "none"
+  return(dat)
+}
+```
+
+## factorize
+
+Turn the plain text encoding of surveillance system characteristics into factors. This is useful for consistent plotting.
+
+```{r}
+factorize <- function(dat){
+  dat$compu <- factor(dat$compu, levels=c("none", "compulsory", "voluntary", "unspecified", "no data"))
+  dat$compre <- factor(dat$compre, levels=c("none", "comprehensive", "sentinel", "unspecified", "no data"))
+  dat$act <- factor(dat$act, levels=c("none", "active", "passive", "unspecified", "no data"))
+  dat$agg <- factor(dat$agg, levels=c("none", "case-based", "aggregated", "unspecified", "no data"))
+  return(dat)
+}
+
+```
+
+#Data processing
+
+## Prepare output data objects
+
+Initialize the output data structure. We will create two separate list objects 
+for plotting the maps and heatmaps, respectively. Each of them will contain 
+sub-structured for the different surveillance system characteristics.
+
+```{r}
+data_spatial <- list()
+data_heatmap <- list()
+```
+
+## Main processing loop
+Iterate over all years, then all diseases. Check if there is data available
+for a given year and disease and either call `process_disease()` to retrieve
+the data or create an empty data.frame. Turn the retrieved data into factors.
+Sort into the pre-defined data objects.
+
+```{r}
+for(year in years){
+  message("+++ processing year ", year, " +++")
+  
+  # add sublist for year currently being processed
+  data_spatial[[paste(year)]] <- list()
+  
+  # get disease IDs used for this year
+  disease_IDs <- meta %>% select(ID_master, paste0("ID_ECDC_", year))
+  
+  for (i in 1:nrow(disease_IDs)){
+    dis_global <- as.character(disease_IDs[i, "ID_master"])
+    dis_local <- as.character(disease_IDs[i, 2])
+    # if there is no table sheet for this disease in this year's workbook,
+    # just create an empty data.frame
+    if(is.na(dis_local)){
+      dat <- empty_sheet
+    }else{
+    # otherwise prepare the data
+      dat <- process_diseasesheet(year, dis_local)
+    }
+    
+    dat <- factorize(dat)
+    
+    # add spatialized data to list
+    dat_st <- countries_sf %>% left_join(dat, by=c("name_long" = "Country"))
+    data_spatial[[paste(year)]][[dis_global]] <- dat_st
+    
+    ## sort data into the appropriate spot of the heatmap data object
+    dat_hm <- cbind(Year = year, dat)
+    data_heatmap[[dis_global]] <- rbind(data_heatmap[[dis_global]], dat_hm)
+  }
+}
+```
+
+## Export data to file system
+Exports the prepared data objects for use in the shiny
+
+```{r}
+saveRDS(data_spatial, file=file.path(getwd(), "data/shiny/data_spatial.rds"))
+saveRDS(data_heatmap, file=file.path(getwd(), "data/shiny/data_heatmap.rds"))
+```
+
+
