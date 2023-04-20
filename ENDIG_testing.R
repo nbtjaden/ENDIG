@@ -134,7 +134,7 @@ server <- function(input, output, session){
   output$EUmap <-renderPlot(
     bgmap+
       geom_sf(data_spatial[[as.character(input$year)]][[input$disease]], mapping=aes(fill = !! sym(input$systype))) +
-      scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE) +
+      scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE, name ="Surveillance System") +
       geom_sf(data = europe, fill = NA, color = col.bg.line)
   )
   
@@ -142,7 +142,7 @@ server <- function(input, output, session){
   output$heatmap <- renderPlot(
     ggplot(data_heatmap[[input$disease]], aes(x=Year, y=Country, fill= !! sym(input$systype))) +
       geom_tile(color=col.borders)+
-      scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE) +
+      scale_fill_manual(values=c(col.none, col.grade1, col.grade2, col.unknown, col.nodata), drop=FALSE, name ="Surveillance System") +
       scale_y_discrete(limits=rev) +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
