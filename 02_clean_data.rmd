@@ -71,6 +71,14 @@ Load previously downloaded country polygons from NaturalEarth:
 load(file = file.path("./data/processed/countries_sf.rds"))
 ```
 
+## Years
+all years in data range
+
+```{r}
+years <- 2015:2021
+```
+
+
 ## Empty data sheet
 
 Some of the yearly workbook files do not have data sheets for certain diseases. Create an empty table as a placeholder.
@@ -84,9 +92,14 @@ empty_sheet <- data.frame(Country = sort(countries), compu = "none", compre = "n
 Initialize the output data structure. We will create two separate list objects for plotting the maps and heatmaps, respectively. Each of them contain another set of lists for the different surveillance system characteristics.
 
 ```{r}
-#data_spatial <- list(compulsory=list(), comprehensive=list(), active=list(), aggregated=list())
+data_spatial <- list()
 
-data_heatmap <- list(compulsory=list(), comprehensive=list(), active=list(), aggregated=list())
+table_heatmap <- data.frame(expand.grid(Year = years, Country = countries))
+data_heatmap <- list()
+for(dis in meta$ID_master){
+  data_heatmap[[dis]] <- table_heatmap
+}
+
 ```
 
 # Functions
@@ -96,8 +109,7 @@ data_heatmap <- list(compulsory=list(), comprehensive=list(), active=list(), agg
 Highest level processing function. For a given year, `process_year()` iterates over all diseases, checks if there is data available and either calls `process_disease()` to retrieve the data or creates an empty data.frame.
 
 ```{r}
-data_spatial <- list()
-for(year in 2015:2021){
+for(year in years){
   message("+++ processing year ", year, " +++")
   
   # add sublist for year currently being processed
@@ -119,17 +131,19 @@ for(year in 2015:2021){
     }
     
     dat <- factorize(dat)
-    # add data to list objects
     
+    # add spatialized data to list
     dat_st <- countries_sf %>% left_join(dat, by=c("name_long" = "Country"))
-    
     data_spatial[[paste(year)]][[dis_global]] <- dat_st
     
-    
+    ## sort data into the appropriate spot of the heatmap data object
+    dat_hm <- cbind(Year = year, dat)
+    data_heatmap[[dis_global]] <- dat_hm %>% left_join(x=table_heatmap, by = c("Year", "Country"))
   }
 }
 
 saveRDS(data_spatial, file=file.path(getwd(), "data/shiny/data_spatial.rds"))
+saveRDS(data_heatmap, file=file.path(getwd(), "data/shiny/data_heatmap.rds"))
 ```
 
 ## process_diseasesheet
