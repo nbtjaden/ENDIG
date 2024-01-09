@@ -102,17 +102,26 @@ ui <- fluidPage(
         ), 
         tabPanel("Temporal view", plotOutput("heatmap",  width = "100%")), 
         tabPanel("Info",
-                 h2("Disease surveillance system classification info"),
+                 h3("Research paper & source code"),
+                 div(
+                   p("For further information, please refer to the research paper published in AGILE-GISS: "),
+                   div(tags$ul(
+                     tags$li("Tjaden, N. B. and Blanford, J. I.: ENDIG: Interactive Geovisualization of Surveillance Systems for Notifiable Diseases in Europe, AGILE GIScience Ser., 4, 46,", tags$a(href="https://doi.org/10.5194/agile-giss-4-46-2023", "https://doi.org/10.5194/agile-giss-4-46-2023"), ", 2023." 
+                     )
+                   ),
+                   p("Source code for data processing and the ENDIG application is available from: ",
+                     tags$a(href='https://github.com/nbtjaden/ENDIG', 'https://github.com/nbtjaden/ENDIG')),
+                   ),
+                 ),
+                 h3("Disease surveillance system classification info"),
                  div(tags$ul(
                    tags$li(tags$b("Compulsory vs. voluntary:"), "Describes whether reporting this disease is compulsory a given country or done on a voluntary basis."), 
                    tags$li(tags$b("Active vs. passive:"), "In an active system the national surveillance agency is responsible for collecting the data from healthcare providers, and in a passive one the healthcare providers are responsible for reporting to the surveillance agency."), 
                    tags$li(tags$b("Comprehensive vs. sentinel-based:"), "Describes whether all (comprehensive) or only a representative sample (sentinel) of healthcare providers supply data."), 
                    tags$li(tags$b("Case-based vs. aggregated:"), "Describes whether full (anonymized) case data or total number of cases are reported.") 
                  )),
-                 h2("Data sources & source code"),
+                 h3("Data sources & source code"),
                  div(
-                   p("Source code for data processing and the ENDIG application is available from ",
-                     tags$a(href='https://github.com/nbtjaden/ENDIG', 'https://github.com/nbtjaden/ENDIG')),
                    p("All administrational boundaries are shown according to and using data from ",
                      tags$a(href='https://www.naturalearthdata.com/', 'Natural Earth')
                    ),
